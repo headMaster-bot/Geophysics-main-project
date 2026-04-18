@@ -16,7 +16,7 @@ const SidebarConnectivity = ({ onMenuClick, activeMenu }) => {
     { id: 4, name: "project planner", path:'/dashboard/project_planner', icon: Planner },
     { id: 5, name: "setting", path:'/dashboard/setting', icon: Setting },
     { id: 6, name: "logout", path:'/', icon: LogOut },
-    // { id: 6, name: "logout", icon: LogOut },/
+   
 
 
   ]);
