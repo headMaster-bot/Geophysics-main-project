@@ -112,7 +112,7 @@ const SurveyFormValidation = ({ onNext }) => {
       Swal.fire({
         icon: "success",
         title: "Saved",
-        text: successMessage || "Survey saved successfully",
+        text: successMessage || "Survey saved successfully done",
       }).then(() => {
         setSubmitted(false);
         dispatch(resetSuccessAction());
@@ -120,7 +120,7 @@ const SurveyFormValidation = ({ onNext }) => {
         // ✅ CRITICAL: Refresh profile to get the new survey ID
         // This ensures all subsequent steps see the new survey
         dispatch(getUserProfileAction()).then(() => {
-          console.log('✅ Profile refreshed with new survey ID');
+          console.log('Profile refreshed with new survey ID');
           if (onNext) onNext(2);
         });
       });

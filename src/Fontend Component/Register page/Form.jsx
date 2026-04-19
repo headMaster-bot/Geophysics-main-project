@@ -16,17 +16,17 @@ const Form = ({
   loading,
   serverError
 }) => {
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const togglePassword = () => {
     setIsPasswordVisible((prev) => !prev);
   }
 
-   const navigateLogin =useNavigate();
-    
-    const handleLogin =() =>{
-        navigateLogin("/Login");
-    }
+  const navigateLogin = useNavigate();
+
+  const handleLogin = () => {
+    navigateLogin("/Login");
+  }
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex-col">
@@ -64,7 +64,7 @@ const Form = ({
               className="w-full rounded-[10px] border-2 focus:border-[#f5f5f5] focus:border-0 py-[8px] pl-[30px] pr-[39px] focus:bg-[#f5f5f5] bg-[#f5f5f5]"
               placeholder="Enter your email address"
             />
-             <p className="text-red-700">{error.email}</p>
+            <p className="text-red-700">{error.email}</p>
 
           </div>
         </div>
@@ -100,9 +100,9 @@ const Form = ({
               onChange={handleChange}
               className="w-full md:ml-0 ml-[-12px] rounded-[10px] border-2 focus:border-[#f5f5f5] focus:border-0 py-[8px] pl-[30px] pr-[39px] focus:bg-[#f5f5f5] bg-[#f5f5f5]"
             >
-            
+
               <option value="">Choose role</option>
-              <option value="geophysic">Geophysic</option>
+              <option value="geophysics">Geophysic</option>
               <option value="geologist">Geologist</option>
               <option value="engineer">Engineer</option>
             </select>
@@ -119,18 +119,18 @@ const Form = ({
           </div>
           <div className="relative">
             <div>
-                <input
-                    type={isPasswordVisible ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full  rounded-[10px] border-2 focus:border-[#f5f5f5] focus:border-0 py-[8px] pl-[30px] pr-[39px] focus:bg-[#f5f5f5] bg-[#f5f5f5]"
-                    placeholder="Enter your password"
-                />
+              <input
+                type={isPasswordVisible ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full  rounded-[10px] border-2 focus:border-[#f5f5f5] focus:border-0 py-[8px] pl-[30px] pr-[39px] focus:bg-[#f5f5f5] bg-[#f5f5f5]"
+                placeholder="Enter your password"
+              />
             </div>
 
             <div onClick={togglePassword} className='flex justify-end absolute md:right-[8px] md:top-4 right-[10px] top-4 '>
-                < FontAwesomeIcon icon={isPasswordVisible ? faEye : faEyeSlash} />
+              < FontAwesomeIcon icon={isPasswordVisible ? faEye : faEyeSlash} />
             </div>
           </div>
           <div className="mt-2 text-sm space-y-1">
@@ -146,9 +146,9 @@ const Form = ({
             <p className={hasLength ? "text-green-600" : "text-red-600"}>
               <FontAwesomeIcon icon={hasLength ? faCheck : faTimes} /> At least 8 characters
             </p>
-           <p className={hasSpecialChar ? "text-green-600" : "text-red-600"}>
-             <FontAwesomeIcon icon={hasSpecialChar ? faCheck : faTimes} /> Special character
-          </p>
+            <p className={hasSpecialChar ? "text-green-600" : "text-red-600"}>
+              <FontAwesomeIcon icon={hasSpecialChar ? faCheck : faTimes} /> Special character
+            </p>
           </div>
         </div>
 
@@ -201,24 +201,24 @@ const Form = ({
             </button>
           </div>
           <div className="flex w-full items-center">
-              <div>
-                 <input 
-                   type="checkbox" 
-                   id="terms" 
-                   name="agreeTerms" 
-                   className="mr-2" 
-                   checked={formData.agreeTerms} 
-                   onChange={handleChange}
-                 />
-              </div>
-              
-                
-                <div className="flex md:mx-auto texvt-cednter   items-center justify-center md:text-[12px] text-[9px]  md:w-[375px] mt-2">
-                  <p className='md:w-full w-8/12 text-center'>
-                    By continuing you agree you have read, understood and agree Terms and Conditions and Privacy Policy
-                  </p>
-                </div>
-            
+            <div>
+              <input
+                type="checkbox"
+                id="terms"
+                name="agreeTerms"
+                className="mr-2"
+                checked={formData.agreeTerms}
+                onChange={handleChange}
+              />
+            </div>
+
+
+            <div className="flex md:mx-auto texvt-cednter   items-center justify-center md:text-[12px] text-[9px]  md:w-[375px] mt-2">
+              <p className='md:w-full w-8/12 text-center'>
+                By continuing you agree you have read, understood and agree Terms and Conditions and Privacy Policy
+              </p>
+            </div>
+
           </div>
         </div>
       </div>
