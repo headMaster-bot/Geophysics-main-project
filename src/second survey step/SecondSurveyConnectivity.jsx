@@ -22,13 +22,15 @@ import { getUserProfileAction } from "../redux/slice/user/usersSlice";
 const SecondSurveyConnectivity = ({ onNext }) => {
   const dispatch = useDispatch();
 
-  // ✅ Get user profile and loading state from correct Redux path
   const profile = useSelector((state) => state.users.profile);
   const profileLoading = useSelector((state) => state.users.loading);
 
-  const { success, successMessage, error: reduxError, loading: surveyLoading } = useSelector(
-    (state) => state.surveys
-  );
+  const {
+    success,
+    successMessage,
+    error: reduxError,
+    loading: surveyLoading,
+  } = useSelector((state) => state.surveys);
 
   const [form, setForm] = useState({
     latitude: "",
@@ -49,32 +51,26 @@ const SecondSurveyConnectivity = ({ onNext }) => {
     { id: 6, name: "review and report", range: number6 },
   ]);
 
-  // ✅ LOAD PROFILE ON MOUNT
+  // Load profile
   useEffect(() => {
     dispatch(getUserProfileAction());
   }, [dispatch]);
 
-  // ✅ DEBUG: Log profile structure
-  useEffect(() => {
-    console.log("SecondSurvey Profile Data:", {
-      profile,
-      surveys: profile?.message?.survey,
-      fullProfile: profile
-    });
-  }, [profile]);
-
-  // ✅ SAFE SURVEY ID (NO useEffect, NO state)
+  // Get LATEST survey (VERY IMPORTANT FIX)
   const surveys = profile?.message?.survey;
-  
-  const surveyId = surveys
-    ? Array.isArray(surveys) && surveys.length > 0
-      ? surveys[0]?._id
-      : surveys?._id
-    : null;
+  const currentSurvey =
+    Array.isArray(surveys) && surveys.length > 0
+      ? surveys[surveys.length - 1]
+      : null;
+
+  const surveyId = currentSurvey?._id;
 
   // INPUT HANDLER
   const handleSecondSurveyChange = (e) => {
     const { name, value } = e.target;
+
+    // Allow only numbers (prevents "1000m" issue)
+    if (value && !/^\d*$/.test(value)) return;
 
     setForm((prev) => ({
       ...prev,
@@ -94,53 +90,72 @@ const SecondSurveyConnectivity = ({ onNext }) => {
     if (!form.latitude) errors.latName = "Latitude is required";
     if (!form.longitude) errors.longName = "Longitude is required";
 
+    // Prevent NaN
+    if (isNaN(Number(form.latitude))) {
+      errors.latName = "Latitude must be a number";
+    }
+
+    if (isNaN(Number(form.longitude))) {
+      errors.longName = "Longitude must be a number";
+    }
+
     setError(errors);
 
     if (errors.latName || errors.longName) {
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Please fill all required fields",
+        title: "Invalid Input",
+        text: "Please enter valid numeric values",
       });
       return;
     }
 
-    // ✅ Validate surveyId exists
     if (!surveyId) {
-      console.error("Survey ID not found. Profile data:", { profile, surveys });
       Swal.fire({
         icon: "error",
         title: "Survey not ready",
-        text: "No survey found. Please create a survey first in the Project Setup step.",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#3085d6"
+        text: "No survey found. Complete Step 1 first.",
       });
       return;
     }
 
+    const lat = Number(form.latitude);
+    const lng = Number(form.longitude);
+
     const surveyData = {
-      latitude: form.latitude,
-      longitude: form.longitude,
+      latitude: lat,
+      longitude: lng,
     };
 
-    console.log("Submitting survey update with:", { surveyId, surveyData });
+    console.log("STEP 2 PAYLOAD:", {
+      surveyId,
+      surveyData,
+    });
+
     dispatch(updateSurveyAction({ id: surveyId, surveyData }));
   };
 
   // SUCCESS HANDLER
   useEffect(() => {
     if (success) {
+      const lat = Number(form.latitude);
+      const lng = Number(form.longitude);
+
       Swal.fire({
         icon: "success",
         title: "Success",
         text: successMessage || "Survey updated successfully",
       }).then(() => {
         dispatch(resetSuccessAction());
-        dispatch(getUserProfileAction());
-        onNext?.();
+
+        // IMPORTANT: Pass data forward (THIS FIXES YOUR STEP 3 ISSUE)
+        onNext?.({
+          latitude: lat,
+          longitude: lng,
+        });
       });
     }
-  }, [success, successMessage, dispatch, onNext]);
+  }, [success, successMessage, dispatch, onNext, form]);
 
   // ERROR HANDLER
   useEffect(() => {
@@ -158,15 +173,21 @@ const SecondSurveyConnectivity = ({ onNext }) => {
   return (
     <div className="w-full py-14">
       {profileLoading && (
-        <div className="mdb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-blue-700 text-center font-medium">Loading profile...</p>
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-700 text-center font-medium">
+            Loading profile...
+          </p>
         </div>
       )}
+
       {surveyLoading && (
-        <div className="mwb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-          <p className="text-orange-700 text-center font-medium">Processing your survey...</p>
+        <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <p className="text-orange-700 text-center font-medium">
+            Processing your survey...
+          </p>
         </div>
       )}
+
       <SecondSurveyContent
         secondSurveyForm={form}
         error={error}

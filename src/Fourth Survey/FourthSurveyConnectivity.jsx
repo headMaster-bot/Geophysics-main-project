@@ -12,7 +12,7 @@ export default function FourthSurveyConnectivity({ onNext }) {
   const { recommendedMethods: reduxRecommendedMethods } = useSelector((state) => state.surveys);
   const { userAuth } = useSelector((state) => state.users);
 
-  // ✅ CRITICAL FIX: Get LATEST survey (last in array), not first!
+  // CRITICAL FIX: Get LATEST survey (last in array), not first!
   const currentSurvey = profile?.message?.survey && profile.message.survey.length > 0
     ? profile.message.survey[profile.message.survey.length - 1]
     : null;
@@ -25,15 +25,15 @@ export default function FourthSurveyConnectivity({ onNext }) {
     dispatch(getUserProfileAction());
   }, [dispatch]);
 
-  // ✅ FORCE REFETCH: When component mounts or changes, always get fresh profile
+  // FORCE REFETCH: When component mounts or changes, always get fresh profile
   useEffect(() => {
     console.log('=== FourthSurveyConnectivity Mounted ===');
     dispatch(getUserProfileAction()).then(() => {
-      console.log('✅ Fresh profile loaded on component mount');
+      console.log('Fresh profile loaded on component mount');
     });
   }, []);
 
-  // ✅ FIXED: Fetch survey directly from API to get recommendedMethods
+  // FIXED: Fetch survey directly from API to get recommendedMethods
   useEffect(() => {
     const fetchSurveyRecommendations = async () => {
       try {
@@ -46,7 +46,7 @@ export default function FourthSurveyConnectivity({ onNext }) {
         console.log('Survey Objective from profile:', surveyObjective);
 
         if (!surveyId) {
-          console.log('⚠️ No survey ID found in profile');
+          console.log('No survey ID found in profile');
           setIsLoading(false);
           return;
         }
@@ -54,7 +54,7 @@ export default function FourthSurveyConnectivity({ onNext }) {
         // Get token from Redux auth
         const token = userAuth?.userInfo?.message?.token;
         if (!token) {
-          console.log('⚠️ No token found');
+          console.log('No token found');
           setIsLoading(false);
           return;
         }
@@ -67,7 +67,7 @@ export default function FourthSurveyConnectivity({ onNext }) {
         };
 
         const response = await axios.get(`${baseUrl}/surveys/${surveyId}`, config);
-        console.log('📥 API Response for survey:', response.data);
+        console.log('API Response for survey:', response.data);
 
         const survey = response.data.message;
         console.log('Survey Objective from API:', survey?.surveyObjective);
@@ -77,7 +77,7 @@ export default function FourthSurveyConnectivity({ onNext }) {
 
         const apiRecommendedMethods = survey?.recommendedMethods || [];
 
-        console.log('✅ Recommended Methods from API:', apiRecommendedMethods);
+        console.log('Recommended Methods from API:', apiRecommendedMethods);
         console.log('Type:', typeof apiRecommendedMethods);
         console.log('Is array?', Array.isArray(apiRecommendedMethods));
         console.log('Length:', apiRecommendedMethods?.length);
@@ -85,7 +85,7 @@ export default function FourthSurveyConnectivity({ onNext }) {
         setMethodsFromApi(apiRecommendedMethods);
         setIsLoading(false);
       } catch (error) {
-        console.error('❌ Error fetching survey:', error.message);
+        console.error('Error fetching survey:', error.message);
         setIsLoading(false);
       }
     };
@@ -95,9 +95,11 @@ export default function FourthSurveyConnectivity({ onNext }) {
     }
   }, [currentSurvey, userAuth]);
 
-  // ✅ Use API data first, then Redux, then fallback
+  // Use API data first, then Redux, then fallback
   // const finalRecommendedMethods = methodsFromApi.length > 0 ? methodsFromApi : reduxRecommendedMethods;
   // dispatch(clearRecommendedMethods()); // create this action
+
+  // For debugging, log all sources of methods
   const finalRecommendedMethods = methodsFromApi;
 
   console.log('=== FourthSurveyConnectivity Final Debug ===');

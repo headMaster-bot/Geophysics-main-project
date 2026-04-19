@@ -38,15 +38,15 @@ const ThirdSurveyContent = ({
                             Data retrieve (GIS)
                         </p>
 
-                        <div className="bg-gray-200 p-4 rounded mb-4">
-                            <p>Length</p>
-                            <h2>{length}</h2>
-                        </div>
+                            <div className="bg-gray-200 p-4 rounded mb-4">
+                                <p>Length</p>
+                                <h2>{length}</h2>
+                            </div>
 
-                        <div className="bg-gray-200 p-4 rounded">
-                            <p>Breadth</p>
-                            <h2>{breadth}</h2>
-                        </div>
+                            <div className="bg-gray-200 p-4 rounded">
+                                <p>Breadth</p>
+                                <h2>{breadth}</h2>
+                            </div>
                     </div>
 
                     {/* RIGHT SIDE */}

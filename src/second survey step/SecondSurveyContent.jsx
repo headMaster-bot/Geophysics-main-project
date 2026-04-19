@@ -54,7 +54,7 @@ export default function SecondSurveyContent({title, survey,error, SecondTitle, s
                         </label>
 
                         <input
-                            type="text" value={secondSurveyForm.latitude} onChange={handleSecondSurveyChange} name="latitude" placeholder='length of survey area(000 mm) '
+                            type="number" value={secondSurveyForm.latitude} onChange={handleSecondSurveyChange} name="latitude" placeholder='length of survey area(000 mm) '
                             className="w-full rounded-[10px]  border border-[#DADCE0] py-[10px] px-[15px] mt-2 focus:outline-none focus:ring-2 focus:ring-[#DADCE0]"
                         />
                         <p className="text-red-500 text-[12px]">
@@ -68,7 +68,7 @@ export default function SecondSurveyContent({title, survey,error, SecondTitle, s
                         </label>
 
                         <input
-                            type="text" onChange={handleSecondSurveyChange} value={secondSurveyForm.longitude} name="longitude" placeholder='breath of survey area(000 mm) '
+                            type="number" onChange={handleSecondSurveyChange} value={secondSurveyForm.longitude} name="longitude" placeholder='breath of survey area(000 mm) '
                             className="w-full rounded-[10px] border border-[#DADCE0] py-[10px] px-[15px] mt-2 focus:outline-none focus:ring-2 focus:ring-[#DADCE0]"
                         />
                         <p className="text-red-500 text-[12px]">

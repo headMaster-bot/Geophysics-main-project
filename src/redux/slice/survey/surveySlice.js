@@ -92,76 +92,139 @@ export const getSurveyAction = createAsyncThunk(
 );
 
 // Update Survey Action
+// export const updateSurveyAction = createAsyncThunk(
+//     "surveys/update",
+//     async (payload, { rejectWithValue, getState }) => {
+//         try {
+//             const { id, surveyData } = payload;
+//             const {
+//                 surveyName,
+//                 description,
+//                 surveyObjective,
+//                 latitude,
+//                 longitude,
+//                 vegetationDensity,
+//                 geologicalSetting,
+//                 minDepth,
+//                 maxDepth,
+//                 siteConstraints,
+//                 ambientNoise,
+//                 layoutPattern,
+//                 stationSpacing,
+//                 lineSpacing,
+//             } = surveyData;
+
+//             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+//             const config = {
+//                 headers: {
+//                     "Content-Type": "application/json",
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             };
+
+//             console.log('📤 Redux updateSurveyAction: Sending to backend:', {
+//                 url: `${baseUrl}/surveys/update/${id}`,
+//                 surveyObjective,
+//                 geologicalSetting,
+//                 minDepth,
+//                 maxDepth
+//             });
+
+//             const res = await axios.put(`${baseUrl}/surveys/update/${id}`, {
+//                 surveyObjective,
+//                 latitude,
+//                 longitude,
+//                 vegetationDensity,
+//                 geologicalSetting,
+//                 minDepth,
+//                 maxDepth,
+//                 siteConstraints,
+//                 ambientNoise,
+//                 layoutPattern,
+//                 stationSpacing,
+//                 lineSpacing,
+//             }, config);
+
+//             console.log('📥 Redux updateSurveyAction: Response received:', res.data);
+//             console.log('  Survey saved:', res.data.survey?._id);
+//             console.log('  Recommended methods:', res.data.recommendedMethods);
+
+//             return {
+//                 survey: res.data.survey,
+//                 recommendedMethods: res.data.recommendedMethods
+//             };
+//         } catch (error) {
+//             console.error('❌ Redux updateSurveyAction Error:', {
+//                 status: error.response?.status,
+//                 message: error.response?.data?.message || error.message,
+//                 fullError: error.response?.data
+//             });
+//             return rejectWithValue(error?.response?.data?.message || error.message);
+//         }
+//     }
+// );
+
 export const updateSurveyAction = createAsyncThunk(
-    "surveys/update",
-    async (payload, { rejectWithValue, getState }) => {
-        try {
-            const { id, surveyData } = payload;
-            const {
-                surveyName,
-                description,
-                surveyObjective,
-                latitude,
-                longitude,
-                vegetationDensity,
-                geologicalSetting,
-                minDepth,
-                maxDepth,
-                siteConstraints,
-                ambientNoise,
-                layoutPattern,
-                stationSpacing,
-                lineSpacing,
-            } = surveyData;
+  "surveys/update",
+  async (payload, { rejectWithValue, getState }) => {
+    try {
+      const { id, surveyData } = payload || {};
 
-            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            };
+      if (!id) {
+        throw new Error("Survey ID is required");
+      }
 
-            console.log('📤 Redux updateSurveyAction: Sending to backend:', {
-                url: `${baseUrl}/surveys/update/${id}`,
-                surveyObjective,
-                geologicalSetting,
-                minDepth,
-                maxDepth
-            });
+      if (!surveyData || typeof surveyData !== "object") {
+        throw new Error("surveyData is missing or invalid");
+      }
 
-            const res = await axios.put(`${baseUrl}/surveys/update/${id}`, {
-                surveyObjective,
-                latitude,
-                longitude,
-                vegetationDensity,
-                geologicalSetting,
-                minDepth,
-                maxDepth,
-                siteConstraints,
-                ambientNoise,
-                layoutPattern,
-                stationSpacing,
-                lineSpacing,
-            }, config);
+      // Remove undefined values (VERY IMPORTANT)
+      const updateData = Object.fromEntries(
+        Object.entries(surveyData).filter(
+          ([_, value]) => value !== undefined && value !== null
+        )
+      );
 
-            console.log('📥 Redux updateSurveyAction: Response received:', res.data);
-            console.log('  Survey saved:', res.data.survey?._id);
-            console.log('  Recommended methods:', res.data.recommendedMethods);
+      const token =
+        getState()?.users?.userAuth?.userInfo?.message?.token;
 
-            return {
-                survey: res.data.survey,
-                recommendedMethods: res.data.recommendedMethods
-            };
-        } catch (error) {
-            console.error('❌ Redux updateSurveyAction Error:', {
-                status: error.response?.status,
-                message: error.response?.data?.message || error.message,
-                fullError: error.response?.data
-            });
-            return rejectWithValue(error?.response?.data?.message || error.message);
-        }
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      console.log("Sending CLEAN payload:", {
+        url: `${baseUrl}/surveys/update/${id}`,
+        updateData,
+      });
+
+      const res = await axios.put(
+        `${baseUrl}/surveys/update/${id}`,
+        updateData, // ONLY CLEAN DATA
+        config
+      );
+
+      console.log("Response:", res.data);
+
+      return {
+        survey: res.data.survey,
+        recommendedMethods: res.data.recommendedMethods || [],
+        message: res.data.message,
+      };
+    } catch (error) {
+      console.error("updateSurveyAction Error:", {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        fullError: error.response?.data,
+      });
+
+      return rejectWithValue(
+        error?.response?.data?.message || error.message
+      );
     }
+  }
 );
 
 // Delete Survey Action
