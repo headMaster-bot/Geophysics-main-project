@@ -54,8 +54,8 @@ const UseStoryModal = ({
             <label>Point</label>
             <input
               type="text"
-              name="point"
-              value={userInput.point}
+              name="points"
+              value={userInput.points}
               onChange={change}
               className="border p-3 rounded"
             />
@@ -64,17 +64,17 @@ const UseStoryModal = ({
         </div>
 
         {/* ASSIGN */}
-        <div className="flex flex-col pt-[18px] pb-[12px]">
+        {/* <div className="flex flex-col pt-[18px] pb-[12px]">
           <label>Assign</label>
           <input
             type="text"
-            name="assign"
-            value={userInput.assign}
+            name="assigned"
+            value={userInput.assigned}
             onChange={change}
             className="border p-3 rounded"
           />
           <p className="text-red-600">{error.assignError}</p>
-        </div>
+        </div> */}
 
         {/* DESCRIPTION */}
         <div className="flex flex-col pt-[18px] pb-[12px]">

@@ -2,17 +2,19 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import UseStoryModal from "./UseStoryModal";
 import { useDispatch } from "react-redux";
-import { createStoryAction } from "../../redux/slice/story/storySlice";
+import { createStoryAction, fetchStoriesByEpicIdAction } from "../../redux/slice/story/storySlice";
 
-const UserStoryModalValidation = ({ closeUserStoryModal }) => {
+const UserStoryModalValidation = ({ closeUserStoryModal, epicId }) => {
+  console.log(epicId, "epic id declare");
+  
   // dispatch
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
 
     title: "",
     priority: "",
-    point: "",
-    assign: "",
+    points: "",
+    // assigned: "",
     description: "",
   });
 
@@ -20,7 +22,7 @@ const UserStoryModalValidation = ({ closeUserStoryModal }) => {
     titleError: "",
     priorityError: "",
     pointError: "",
-    assignError: "",
+    // assignError: "",
     descriptionError: "",
   });
 
@@ -50,9 +52,13 @@ const UserStoryModalValidation = ({ closeUserStoryModal }) => {
       titleError: "",
       priorityError: "",
       pointError: "",
-      assignError: "",
+      // assignError: "",
       descriptionError: "",
     };
+    // const payload = {
+    //   ...formData,
+    //   epic: epicId, // 🔥 THIS IS THE KEY
+    // };
 
     // Validation
     if (!formData.title.trim()) {
@@ -63,13 +69,13 @@ const UserStoryModalValidation = ({ closeUserStoryModal }) => {
       newErrors.priorityError = "Priority is required";
     }
 
-    if (!formData.point.trim()) {
+    if (!formData.points.trim()) {
       newErrors.pointError = "Point is required";
     }
 
-    if (!formData.assign.trim()) {
-      newErrors.assignError = "Assign is required";
-    }
+    // if (!formData.assigned.trim()) {
+    //   newErrors.assignError = "Assign is required";
+    // }
 
     if (!formData.description.trim()) {
       newErrors.descriptionError = "Description is required";
@@ -92,9 +98,22 @@ const UserStoryModalValidation = ({ closeUserStoryModal }) => {
 
     //  NOW SAFE TO DISPATCH
     try {
-      const payload = await dispatch(createStoryAction(formData)).unwrap();
+      // const payload = await dispatch(createStoryAction(formData)).unwrap();
+      const payload = await dispatch(
+        createStoryAction({
+          ...formData,
+          epicId, // ✅ THIS IS THE KEY FIX
+        })
+      ).unwrap();
       console.log(payload, "Payload");
-      
+      console.log("FINAL PAYLOAD:", {
+        ...formData,
+        epicId, 
+      });
+
+      // refresh only this epic stories
+      dispatch(fetchStoriesByEpicIdAction(epicId));
+
 
       // ✅ success
       Swal.fire({
@@ -115,8 +134,8 @@ const UserStoryModalValidation = ({ closeUserStoryModal }) => {
     setFormData({
       title: "",
       priority: "",
-      point: "",
-      assign: "",
+      points: "",
+      // assigned: "",
       description: "",
     });
 

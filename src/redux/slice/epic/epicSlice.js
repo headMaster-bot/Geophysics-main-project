@@ -45,7 +45,7 @@ export const createEpicAction = createAsyncThunk(
 // fetch all epics action
 export const fetchEpicsAction = createAsyncThunk(
     "epic/fetchAll",
-    async (payload, { rejectWithValue, getState, dispatch }) => {
+    async (projectId, { rejectWithValue, getState, dispatch }) => {
         try {
             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
             const config = {
@@ -62,6 +62,8 @@ export const fetchEpicsAction = createAsyncThunk(
         }
     }
 );
+
+
 
 const epicSlice = createSlice({
     name: "epics",

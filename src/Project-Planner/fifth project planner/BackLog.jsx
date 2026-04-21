@@ -9,9 +9,25 @@ import BackLogContent from "./BackLogContent";
 const BackLog = ({ currentProjectId }) => {
   const dispatch = useDispatch();
   const { epics } = useSelector((state) => state.epics);
+  // const { profile } = useSelector(state => state.users)
+  // const lastProjectName = profile?.projects?.length[profile?.projects?.length - 1]
 
-  // State
+  const { profile } = useSelector(state => state.users);
+
+  const projects = profile?.message?.projects || [];
+
+const lastProjectName =
+  projects.length > 0
+    ? projects[projects.length - 1]?.projectName
+    : "Unknown Project";
   const [toggledEpics, setToggledEpics] = useState({});
+
+  // const projectName =
+  //   profile?.projects?.find(
+  //     (p) => String(p._id) === String(currentProjectId)
+  //   )?.projectName ??
+  //   epics?.[0]?.project?.projectName ??
+  //   "Unknown Project";
 
   // Functions
   const toggling = (epicId) => {
@@ -29,9 +45,16 @@ const BackLog = ({ currentProjectId }) => {
   }, [dispatch, currentProjectId]);
 
   // Computed values
-  const currentProjectEpics = epics?.filter(
-    (epic) => epic.project?._id === currentProjectId
-  );
+  const currentProjectEpics = epics?.filter((epic) => {
+    if (!epic?.project || !currentProjectId) return false;
+
+    const epicProjectId =
+      typeof epic.project === "object"
+        ? epic.project._id
+        : epic.project;
+
+    return String(epicProjectId) === String(currentProjectId);
+  });
 
   const projectName =
     currentProjectEpics?.[0]?.project?.projectName || "Unknown Project";
@@ -65,8 +88,11 @@ const BackLog = ({ currentProjectId }) => {
           <div className="mb-4">
             {/* Project header */}
             <div className="px-4 py-2 bg-[#F9FAFB] border-b border-[#DADCE0]">
-              <p className="text-[#364153] font-instrument font-semibold text-[16px] leading-[24px] tracking-[-0.31px]">
+              {/* <p className="text-[#364153] font-instrument font-semibold text-[16px] leading-[24px] tracking-[-0.31px]">
                 {projectName} (Current)
+              </p> */}
+              <p className="text-[#364153] font-instrument font-semibold text-[16px] leading-[24px] tracking-[-0.31px]">
+                {lastProjectName} (Current)
               </p>
             </div>
 
@@ -108,7 +134,7 @@ const BackLog = ({ currentProjectId }) => {
 
                 {/* Story content */}
                 {toggledEpics[epic._id] && (
-                  <BackLogContent epicId={epic._id} />  
+                  <BackLogContent epicId={epic._id} />
                 )}
               </div>
             ))}

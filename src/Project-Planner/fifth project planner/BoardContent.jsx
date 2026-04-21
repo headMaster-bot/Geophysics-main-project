@@ -1,7 +1,24 @@
 import React from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
+import { useEffect } from "react";
 
-const BoardContent = ({ columns }) => {
+// import React, { useEffect } from "react";
+import { fetchStoriesByProjectAction } from "../../redux/slice/story/storySlice";
+import { useDispatch, useSelector } from "react-redux";
+
+const BoardContent = ({ columns, currentProjectId }) => {
+  //dispatch
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (currentProjectId) {
+      dispatch(fetchStoriesByProjectAction(currentProjectId));
+    }
+  }, [dispatch, currentProjectId]);
+
+  const { storiesByProject } = useSelector(state => state.stories);
+
+  const stories = storiesByProject[currentProjectId] || [];
   return (
     <div className="flex flex-col min-w-[917px]">
       {/* Header */}

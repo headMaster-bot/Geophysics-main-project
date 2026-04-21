@@ -5,6 +5,7 @@ import axios from "axios";
 import baseUrl from "../../utils/baseUrl";
 import { getUserProfileAction } from "../../redux/slice/user/usersSlice";
 import BoardContent from "./BoardContent";
+import { updateStoryStatusAction } from "../../redux/slice/story/storySlice";
 
 const getInitials = (fullName = "") => {
   const names = fullName.trim().split(" ").filter(Boolean);
@@ -59,7 +60,7 @@ const defaultComplete = (aka) => [
   },
 ];
 
-export default function BoardValidation() {
+export default function BoardValidation({currentProjectId}) {
   const dispatch = useDispatch();
   const { profile } = useSelector((state) => state.users);
   const [columns, setColumns] = useState({
@@ -115,61 +116,104 @@ export default function BoardValidation() {
     fetchStories();
   }, [profileInitials]);
 
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
+  // const handleDragEnd = (result) => {
+  //   if (!result.destination) return;
 
-    const { source, destination } = result;
+  //   const { source, destination } = result;
+  //   if (
+  //     source.droppableId === destination.droppableId &&
+  //     source.index === destination.index
+  //   ) {
+  //     return;
+  //   }
+
+  //   setColumns((prev) => {
+  //     const sourceColumn = prev[source.droppableId];
+  //     const destinationColumn = prev[destination.droppableId];
+  //     const sourceItems = [...sourceColumn.items];
+  //     const [movedItem] = sourceItems.splice(source.index, 1);
+
+  //     if (source.droppableId === destination.droppableId) {
+  //       sourceItems.splice(destination.index, 0, movedItem);
+  //       return {
+  //         ...prev,
+  //         [source.droppableId]: {
+  //           ...sourceColumn,
+  //           items: sourceItems,
+  //         },
+  //       };
+  //     }
+
+  //     const destinationItems = [...destinationColumn.items];
+  //     destinationItems.splice(destination.index, 0, movedItem);
+
+  //     return {
+  //       ...prev,
+  //       [source.droppableId]: {
+  //         ...sourceColumn,
+  //         items: sourceItems,
+  //       },
+  //       [destination.droppableId]: {
+  //         ...destinationColumn,
+  //         items: destinationItems,
+  //       },
+  //     };
+  //   });
+  // };
+
+
+  const handleDragEnd = async (result) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+
+    // no movement
     if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
     ) {
       return;
     }
 
-    setColumns((prev) => {
-      const sourceColumn = prev[source.droppableId];
-      const destinationColumn = prev[destination.droppableId];
-      const sourceItems = [...sourceColumn.items];
-      const [movedItem] = sourceItems.splice(source.index, 1);
+    const newStatus = destination.droppableId;
 
-      if (source.droppableId === destination.droppableId) {
-        sourceItems.splice(destination.index, 0, movedItem);
-        return {
-          ...prev,
-          [source.droppableId]: {
-            ...sourceColumn,
-            items: sourceItems,
-          },
-        };
-      }
+    try {
+      await dispatch(
+        updateStoryStatusAction({
+          storyId: draggableId,
+          status: newStatus,
+        })
+      );
 
-      const destinationItems = [...destinationColumn.items];
-      destinationItems.splice(destination.index, 0, movedItem);
-
-      return {
-        ...prev,
-        [source.droppableId]: {
-          ...sourceColumn,
-          items: sourceItems,
-        },
-        [destination.droppableId]: {
-          ...destinationColumn,
-          items: destinationItems,
-        },
-      };
-    });
+      // 🔥 refresh data
+      // dispatch(fetchStoriesByProjectAction(currentProjectId));
+    } catch (err) {
+      console.log(err);
+    }
   };
-
   return (
+    // <DragDropContext onDragEnd={handleDragEnd}>
+    //   <DragDropContext onDragEnd={handleDragEnd}>
+    //     <BoardContent columns={columns} currentProjectId={currentProjectId} />
+    //   </DragDropContext>
+    //   <>
+    //     <BoardContent columns={columns} />
+    //     {loading && (
+    //       <p className="text-sm text-[#4A5565] mt-3">
+    //         Loading board stories...
+    //       </p>
+    //     )}
+    //   </>
+    // </DragDropContext>
+
     <DragDropContext onDragEnd={handleDragEnd}>
-      <>
-        <BoardContent columns={columns} />
-        {loading && (
-          <p className="text-sm text-[#4A5565] mt-3">
-            Loading board stories...
-          </p>
-        )}
-      </>
+      <BoardContent columns={columns} currentProjectId={currentProjectId} />
+
+      {loading && (
+        <p className="text-sm text-[#4A5565] mt-3">
+          Loading board stories...
+        </p>
+      )}
     </DragDropContext>
   );
 }
