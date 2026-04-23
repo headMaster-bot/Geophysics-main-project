@@ -304,13 +304,35 @@ export const fetchDraftsAction = createAsyncThunk(
             );
 
             console.log(data, "yess");
-            
+
 
             return data;
         } catch (error) {
             return rejectWithValue(
                 error.response?.data?.message || error.message
             );
+        }
+    }
+);
+
+// get draft
+export const fetchDraftAction = createAsyncThunk(
+    "survey/fetchDraft",
+    async (surveyId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const { data } = await axios.get(
+                `${baseUrl}/surveys/draft/${surveyId}`,
+                config
+            );
+            return data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data);
         }
     }
 );
@@ -505,6 +527,21 @@ const surveySlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         });
+
+        // get draft
+        
+            builder.addCase(fetchDraftAction.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            builder.addCase(fetchDraftAction.fulfilled, (state, action) => {
+                state.loading = false;
+                state.survey = action.payload.survey;
+            })
+            builder.addCase(fetchDraftAction.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message;
+            });
 
 
         // Reset error and success

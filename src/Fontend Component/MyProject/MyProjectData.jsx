@@ -79,21 +79,23 @@ export default function MyProjectData() {
   //     linking: '/dashboard/project/3'
   //   }
   // ]
- const projectData = (profile?.message?.survey || []).map((project) => ({
-  id: project._id,   // ✅ MUST BE REAL ID
-  title: project.title,
-  status: project.status,
-  action: project.status,
-  timeStamp: project.createdAt,
-  objective: project.objective,
-  Content: project.description,
-  buttonContent: "Open Project",
-  // linking: `/dashboard/survey/${project._id}`,
-  linking: `/dashboard/survey/${project._id}/1`,
-}));
+  const projectData = (profile?.message?.survey || []).map((project) => ({
+    id: project._id,   // ✅ MUST BE REAL ID
+    title: project.title,
+    status: project.status,
+    action: project.status,
+    timeStamp: project.createdAt,
+    objective: project.objective,
+    Content: project.description,
+    buttonContent: "Open Project",
+    // linking: `/dashboard/survey/${project._id}`,
+    linking: `/dashboard/survey/${project._id}/1`,
+  }));
 
   const handlePath = (path) => {
-    navigate(path)
+    // console.log("working");
+    
+    navigate("/dashboard/survey/1");
   }
 
   return (

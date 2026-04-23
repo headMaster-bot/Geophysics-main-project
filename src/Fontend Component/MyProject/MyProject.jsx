@@ -91,7 +91,7 @@ export default function MyProject({ projectData, handlePath, handleStatusUpdate 
 
                             <div className="flex mt-[24px] items-center">
                                 <button
-                                    onClick={() => handlePath(project.linking)}
+                                    onClick={ handlePath}
                                     className="w-full py-[7px] flex justify-center items-center bg-[#585858] rounded-[10px] font-instrument text-[#ffffff]">
                                     Open Project
                                 </button>
