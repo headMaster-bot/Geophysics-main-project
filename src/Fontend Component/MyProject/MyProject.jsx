@@ -10,7 +10,7 @@ export default function MyProject({ projectData, handlePath, handleStatusUpdate 
     // const surveydata = profile?.message?.survey;
     const { drafts, loading } = useSelector((state) => state.surveys);
     console.log(drafts, "survey");
-    
+
     useEffect(() => {
         dispatch(fetchDraftsAction());
     }, [dispatch]);
@@ -90,8 +90,10 @@ export default function MyProject({ projectData, handlePath, handleStatusUpdate 
                             </div>
 
                             <div className="flex mt-[24px] items-center">
-                                <button onClick={() => handlePath(project.linking)} className="w-full py-[7px] flex justify-center items-center bg-[#585858] rounded-[10px] font-instrument text-[#ffffff]">
-                                    {project.buttonContent}
+                                <button
+                                    onClick={() => handlePath(project.linking)}
+                                    className="w-full py-[7px] flex justify-center items-center bg-[#585858] rounded-[10px] font-instrument text-[#ffffff]">
+                                    Open Project
                                 </button>
                             </div>
                         </div>
