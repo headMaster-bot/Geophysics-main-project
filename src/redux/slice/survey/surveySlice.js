@@ -7,6 +7,7 @@ import { resetErrAction, resetSuccessAction } from "../globalActions/globalActio
 const initialState = {
     loading: false,
     error: null,
+    drafts: [],
     surveys: [],
     survey: null,
     success: false,
@@ -165,66 +166,66 @@ export const getSurveyAction = createAsyncThunk(
 // );
 
 export const updateSurveyAction = createAsyncThunk(
-  "surveys/update",
-  async (payload, { rejectWithValue, getState }) => {
-    try {
-      const { id, surveyData } = payload || {};
+    "surveys/update",
+    async (payload, { rejectWithValue, getState }) => {
+        try {
+            const { id, surveyData } = payload || {};
 
-      if (!id) {
-        throw new Error("Survey ID is required");
-      }
+            if (!id) {
+                throw new Error("Survey ID is required");
+            }
 
-      if (!surveyData || typeof surveyData !== "object") {
-        throw new Error("surveyData is missing or invalid");
-      }
+            if (!surveyData || typeof surveyData !== "object") {
+                throw new Error("surveyData is missing or invalid");
+            }
 
-      // Remove undefined values (VERY IMPORTANT)
-      const updateData = Object.fromEntries(
-        Object.entries(surveyData).filter(
-          ([_, value]) => value !== undefined && value !== null
-        )
-      );
+            // Remove undefined values (VERY IMPORTANT)
+            const updateData = Object.fromEntries(
+                Object.entries(surveyData).filter(
+                    ([_, value]) => value !== undefined && value !== null
+                )
+            );
 
-      const token =
-        getState()?.users?.userAuth?.userInfo?.message?.token;
+            const token =
+                getState()?.users?.userAuth?.userInfo?.message?.token;
 
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      };
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            };
 
-      console.log("Sending CLEAN payload:", {
-        url: `${baseUrl}/surveys/update/${id}`,
-        updateData,
-      });
+            console.log("Sending CLEAN payload:", {
+                url: `${baseUrl}/surveys/update/${id}`,
+                updateData,
+            });
 
-      const res = await axios.put(
-        `${baseUrl}/surveys/update/${id}`,
-        updateData, // ONLY CLEAN DATA
-        config
-      );
+            const res = await axios.put(
+                `${baseUrl}/surveys/update/${id}`,
+                updateData, // ONLY CLEAN DATA
+                config
+            );
 
-      console.log("Response:", res.data);
+            console.log("Response:", res.data);
 
-      return {
-        survey: res.data.survey,
-        recommendedMethods: res.data.recommendedMethods || [],
-        message: res.data.message,
-      };
-    } catch (error) {
-      console.error("updateSurveyAction Error:", {
-        status: error.response?.status,
-        message: error.response?.data?.message || error.message,
-        fullError: error.response?.data,
-      });
+            return {
+                survey: res.data.survey,
+                recommendedMethods: res.data.recommendedMethods || [],
+                message: res.data.message,
+            };
+        } catch (error) {
+            console.error("updateSurveyAction Error:", {
+                status: error.response?.status,
+                message: error.response?.data?.message || error.message,
+                fullError: error.response?.data,
+            });
 
-      return rejectWithValue(
-        error?.response?.data?.message || error.message
-      );
+            return rejectWithValue(
+                error?.response?.data?.message || error.message
+            );
+        }
     }
-  }
 );
 
 // Delete Survey Action
@@ -245,6 +246,74 @@ export const deleteSurveyAction = createAsyncThunk(
         }
     }
 );
+// update survey status
+export const updateSurveyStatusAction = createAsyncThunk(
+    "survey/status",
+    async ({ surveyId, status }, { rejectWithValue }) => {
+        try {
+            const { data } = await axios.put(`${baseUrl}/surveys/update-status`, {
+                surveyId,
+                status
+            });
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data);
+        }
+    }
+);
+// create draft action 
+export const saveDraftAction = createAsyncThunk(
+    "survey/saveDraft",
+    async (surveyData, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const { data } = await axios.post(
+                `${baseUrl}/surveys/save-to-draft`,
+                surveyData,
+                config
+            );
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+// fetch draft action
+export const fetchDraftsAction = createAsyncThunk(
+    "survey/fetchDrafts",
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const { data } = await axios.get(
+                `${baseUrl}/surveys/gets-draft?status=draft`,
+                config
+            );
+
+            console.log(data, "yess");
+            
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
 
 const surveySlice = createSlice({
     name: "surveys",
@@ -258,19 +327,19 @@ const surveySlice = createSlice({
         builder.addCase(createSurveyAction.fulfilled, (state, action) => {
             console.log('=== REDUX: createSurveyAction.fulfilled ===');
             console.log('Full action.payload:', action.payload);
-            
+
             state.loading = false;
             state.success = true;
             state.successMessage = action.payload.message;
-            
+
             // ✅ CLEAR OLD RECOMMENDATIONS WHEN NEW SURVEY IS CREATED
             state.recommendedMethods = [];
             console.log('🧹 Cleared old recommendedMethods for new survey');
-            
+
             // Backend returns surveyCreated, not survey
             const surveyData = action.payload.surveyCreated || action.payload.survey;
             console.log('Survey data found:', surveyData);
-            
+
             if (surveyData) {
                 state.survey = surveyData;
                 state.surveys.push(surveyData);
@@ -330,12 +399,12 @@ const surveySlice = createSlice({
             state.loading = false;
             state.success = true;
             state.successMessage = action.payload.message || "Survey updated successfully";
-            
+
             // ✅ ENSURE recommendedMethods is ALWAYS an array
-            state.recommendedMethods = Array.isArray(action.payload.recommendedMethods) 
-                ? action.payload.recommendedMethods 
+            state.recommendedMethods = Array.isArray(action.payload.recommendedMethods)
+                ? action.payload.recommendedMethods
                 : [];
-            
+
             console.log('State after update - recommendedMethods:', state.recommendedMethods);
             console.log('✅ Recommendations cleared/updated for survey objective');
 
@@ -373,6 +442,70 @@ const surveySlice = createSlice({
             state.error = action.payload;
             state.success = false;
         });
+        // update survey status 
+        // builder
+
+        // 🔄 PENDING
+        builder.addCase(updateSurveyStatusAction.pending, (state) => {
+            state.loading = true;
+        })
+
+        // ✅ SUCCESS
+        builder.addCase(updateSurveyStatusAction.fulfilled, (state, action) => {
+            const updatedSurvey = action.payload.data;
+
+            state.profile.message.survey =
+                state.profile.message.survey.map((survey) =>
+                    survey._id === updatedSurvey._id ? updatedSurvey : survey
+                );
+        });
+
+        // ❌ ERROR
+        builder.addCase(updateSurveyStatusAction.rejected, (state, action) => {
+            state.loading = false;
+            state.appErr = action.payload?.message;
+            state.serverErr = action.error?.message;
+        });
+        // create draft
+        builder.addCase(saveDraftAction.pending, (state) => {
+            state.loading = true;
+        })
+        builder.addCase(saveDraftAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.success = true;
+
+            // update or insert draft
+            const index = state.drafts.findIndex(
+                (d) => d._id === action.payload._id
+            );
+
+            if (index !== -1) {
+                state.drafts[index] = action.payload;
+            } else {
+                state.drafts.unshift(action.payload);
+            }
+
+            state.currentDraft = action.payload;
+        });
+        builder.addCase(saveDraftAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        })
+
+        // FETCH DRAFTS
+        // =========================
+        builder.addCase(fetchDraftsAction.pending, (state) => {
+            state.loading = true;
+        })
+        builder.addCase(fetchDraftsAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.drafts = action.payload;
+        })
+        builder.addCase(fetchDraftsAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
+
 
         // Reset error and success
         builder.addCase(resetErrAction.pending, (state) => {

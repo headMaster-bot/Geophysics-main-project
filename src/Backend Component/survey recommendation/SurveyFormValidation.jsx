@@ -3,7 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import SurveyForm from "./SurveyForm";
-import { createSurveyAction } from "../../redux/slice/survey/surveySlice";
+
+import {
+  createSurveyAction,
+  saveDraftAction,
+} from "../../redux/slice/survey/surveySlice";
+
 import { getUserProfileAction } from "../../redux/slice/user/usersSlice";
 import {
   resetSuccessAction,
@@ -14,10 +19,11 @@ import first from "../image/🌿.png";
 import second from "../image/⛏️.png";
 import third from "../image/🏗️.png";
 import fourth from "../image/🏛️.png";
-
+import SurveyContent from "./SurveyContent";
 
 const SurveyFormValidation = ({ onNext }) => {
   const dispatch = useDispatch();
+
   const { error: reduxError, success, successMessage } = useSelector(
     (state) => state.surveys
   );
@@ -39,34 +45,152 @@ const SurveyFormValidation = ({ onNext }) => {
     targetCompletionDate: "",
   });
 
+  const [surveyId, setSurveyId] = useState(null);
+
   const [error, setError] = useState({
     surveyName: "",
     surveyObjective: "",
   });
+
   const [submitted, setSubmitted] = useState(false);
 
+  // ✅ HANDLE INPUT CHANGE
   const handleSurveyChange = (e) => {
     const { name, value } = e.target;
-    setSurveyForm((prev) => ({ ...prev, [name]: value }));
+
+    setSurveyForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
     if (error[name]) {
-      setError((prev) => ({ ...prev, [name]: "" }));
+      setError((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
     }
   };
 
+  // ✅ OBJECTIVE SELECT
   const handleSurveyObjective = (value) => {
-    setSurveyForm((prev) => ({ ...prev, surveyObjective: value }));
+    setSurveyForm((prev) => ({
+      ...prev,
+      surveyObjective: value,
+    }));
 
     if (error.surveyObjective) {
-      setError((prev) => ({ ...prev, surveyObjective: "" }));
+      setError((prev) => ({
+        ...prev,
+        surveyObjective: "",
+      }));
     }
   };
 
-  const handleSurveySubmit = (e) => {
+  // ✅ SAVE DRAFT (FIXED COMPLETELY)
+  // const handleSaveToDraft = async () => {
+  //   console.log("yessssssssssssss");
+
+  //   try {
+  //     console.log("🧪 SURVEY FORM BEFORE SAVE:", surveyForm);
+
+  //     // const cleanData = Object.fromEntries(
+  //     //   Object.entries(surveyForm).filter(
+  //     //     ([_, v]) => v !== "" && v !== null && v !== undefined
+  //     //   )
+  //     // );
+
+  //     const cleanData = Object.entries(surveyForm).reduce((acc, [key, value]) => {
+  //       if (value !== "" && value !== null && value !== undefined) {
+  //         acc[key] = value;
+  //       }
+  //       return acc;
+  //     }, {});
+
+  //     const payload = {
+  //       ...cleanData,
+  //       status: "draft",
+  //       surveyId,
+  //     };
+
+  //     console.log("📦 FINAL PAYLOAD:", payload);
+
+  //     const res = await dispatch(saveDraftAction(payload));
+
+  //     console.log("📥 RESPONSE:", res);
+
+  //     // if (res.payload?._id) {
+  //     //   setSurveyId(res.payload._id);
+  //     // }
+
+  //     const draft = res.payload?.data || res.payload;
+
+  //     if (draft?._id) {
+  //       setSurveyId(draft._id);
+  //     }
+
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Saved",
+  //       text: "Draft saved successfully",
+  //       timer: 1200,
+  //       showConfirmButton: false,
+  //     });
+  //   } catch (err) {
+  //     console.log("❌ SAVE DRAFT ERROR:", err);
+  //   }
+  // };
+
+  const handleSaveToDraft = async () => {
+    try {
+      console.log("🧪 SURVEY FORM:", surveyForm);
+
+      if (!surveyForm) {
+        console.log("❌ surveyForm is missing");
+        return;
+      }
+
+      const cleanData = Object.entries(surveyForm).reduce((acc, [key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {});
+
+      const payload = {
+        ...cleanData,
+        status: "draft",
+        ...(surveyId && { surveyId }),
+      };
+
+      console.log("📦 DRAFT PAYLOAD:", payload);
+
+      const res = await dispatch(saveDraftAction(payload));
+
+      const draft = res.payload?.data || res.payload;
+
+      if (draft?._id) {
+        setSurveyId(draft._id);
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Saved",
+        text: "Draft saved successfully",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+    } catch (err) {
+      console.log("❌ SAVE DRAFT ERROR:", err);
+    }
+  };
+
+  // ✅ SUBMIT SURVEY
+  const handleSurveySubmit = async (e) => {
     e.preventDefault();
 
     const surveyFormError = {
-      surveyName: !surveyForm.surveyName.trim()
+      surveyName: !surveyForm.surveyName?.trim()
         ? "Survey name is required"
         : "",
       surveyObjective: !surveyForm.surveyObjective
@@ -76,7 +200,6 @@ const SurveyFormValidation = ({ onNext }) => {
 
     setError(surveyFormError);
 
-    // ✅ FIXED VALIDATION
     if (surveyFormError.surveyName || surveyFormError.surveyObjective) {
       Swal.fire({
         icon: "error",
@@ -86,48 +209,39 @@ const SurveyFormValidation = ({ onNext }) => {
       return;
     }
 
-    // ✅ SEND TO REDUX AND SHOW SUCCESS ON COMPLETE
-    const result = dispatch(createSurveyAction(surveyForm));
+    const result = await dispatch(createSurveyAction(surveyForm));
 
-    const payload = result?.payload;
-
-    // ❌ STOP IF FAILED
-    if (payload?.status === "failed") {
+    if (result?.payload?.status === "failed") {
       Swal.fire({
         icon: "error",
         title: "Duplicate Survey",
-        text: payload.message,
+        text: result.payload.message,
       });
       return;
     }
+
     setSubmitted(true);
   };
 
-  /** SUCCESS (optional feedback only) */
+  // ✅ SUCCESS HANDLER
   useEffect(() => {
     if (submitted && success) {
-      console.log('=== SurveyFormValidation Success ===');
-      console.log('Refreshing profile to get new survey ID...');
-
       Swal.fire({
         icon: "success",
         title: "Saved",
-        text: successMessage || "Survey saved successfully done",
+        text: successMessage || "Survey saved successfully",
       }).then(() => {
         setSubmitted(false);
         dispatch(resetSuccessAction());
 
-        // ✅ CRITICAL: Refresh profile to get the new survey ID
-        // This ensures all subsequent steps see the new survey
         dispatch(getUserProfileAction()).then(() => {
-          console.log('Profile refreshed with new survey ID');
           if (onNext) onNext(2);
         });
       });
     }
   }, [submitted, success, successMessage, dispatch, onNext]);
 
-  /** ERROR HANDLING */
+  // ❌ ERROR HANDLER
   useEffect(() => {
     if (submitted && reduxError) {
       Swal.fire({
@@ -143,6 +257,24 @@ const SurveyFormValidation = ({ onNext }) => {
 
   return (
     <div className="md:w-[967px] border border-[#DADCE0] rounded-[10px] py-[10px] mx-auto mt-10">
+      {/* <SurveyForm
+        title="Project Setup"
+        content={content}
+        surveyForm={surveyForm}
+        error={error}
+        handleSurveyChange={handleSurveyChange}
+        handleSurveySubmit={handleSurveySubmit}
+        handleSurveyObjective={handleSurveyObjective}
+      // handleSaveToDraft={handleSaveToDraft}
+      /> */}
+
+      <div className="flex">
+         <SurveyContent
+        survey={content}
+        handleSaveToDraft={handleSaveToDraft}
+      />
+      </div>
+
       <SurveyForm
         title="Project Setup"
         content={content}
@@ -151,7 +283,14 @@ const SurveyFormValidation = ({ onNext }) => {
         handleSurveyChange={handleSurveyChange}
         handleSurveySubmit={handleSurveySubmit}
         handleSurveyObjective={handleSurveyObjective}
+        handleSaveToDraft={handleSaveToDraft}   // ✅ ADD THIS
       />
+
+      {/* <SurveyContent
+        survey={content}
+        handleSaveToDraft={handleSaveToDraft}
+      /> */}
+
     </div>
   );
 };

@@ -15,6 +15,8 @@ export default function SurveyContainer() {
 
   const [secondSurveyData, setSecondSurveyData] = useState(null);
   const [selectedMethodFromFourth, setSelectedMethodFromFourth] = useState(null);
+  const [surveyForm, setSurveyForm] = useState({});
+  const [surveyId, setSurveyId] = useState(null);
 
   const goToNextSurveyStep = () => {
     if (surveyStep >= 6) {
@@ -28,7 +30,13 @@ export default function SurveyContainer() {
     <div className='w-[967px] mx-auto'>
 
       {/* Hide SurveyConnectivity on step 6 */}
-      {surveyStep !== 6 && <SurveyConnectivity />}
+      {/* {surveyStep !== 6 && <SurveyConnectivity />} */}
+      {surveyStep !== 6 && <SurveyConnectivity
+        surveyForm={surveyForm}
+        setSurveyForm={setSurveyForm}
+        surveyId={surveyId}
+        setSurveyId={setSurveyId}
+      />}
 
       <div className='mt-5'>
         {surveyStep === 1 && (

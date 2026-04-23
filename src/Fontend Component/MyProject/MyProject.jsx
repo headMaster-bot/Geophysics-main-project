@@ -1,6 +1,19 @@
+import { useDispatch, useSelector } from "react-redux";
 import search from "../../Backend Component/image/Search.png"
+import { fetchDraftsAction } from "../../redux/slice/survey/surveySlice";
+import { useEffect } from "react";
 
-export default function MyProject({projectData, handlePath}) {
+export default function MyProject({ projectData, handlePath, handleStatusUpdate }) {
+    // dispatch
+    const dispatch = useDispatch();
+    // const { profile } = useSelector(state => state?.users)
+    // const surveydata = profile?.message?.survey;
+    const { drafts, loading } = useSelector((state) => state.surveys);
+    console.log(drafts, "survey");
+    
+    useEffect(() => {
+        dispatch(fetchDraftsAction());
+    }, [dispatch]);
     return (
         <div className=" flex-1 flex flex-col w-[967px] gap-[8px] mx-auto pb-4">
             {/* Title */}
@@ -48,38 +61,42 @@ export default function MyProject({projectData, handlePath}) {
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-            {projectData.map((project) => (
-                <div className="rounded-[10px] border px-[24px] pt-[24px] pb-[14px] border-[#DADCE0] font-instrument" key={project.id}>
-                    <div className="flex justify-between items-center">
-                        <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">{project.status}</div>
-                        <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">{project.action}</div>
+                {loading ? (
+                    <p>Loading drafts...</p>
+                ) : (
+                    (drafts || []).map((project) => (
+                        <div className="rounded-[10px] border px-[24px] pt-[24px] pb-[14px] border-[#DADCE0] font-instrument" key={project.id}>
+                            <div className="flex justify-between items-center">
+                                <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">{project.status}</div>
+                                <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">{project.action}</div>
 
-                    </div>
-                    <div>
-                        <div className="flex flex-col capitalize pt-4 pb-[24px]" >
-                            <p className="font-instrument font-semibold text-[18px] leading-[28px] tracking-[-0.44px] text-[#101828]">{project.title}</p>
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <p className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">{project.Content}</p>
-                            <div className="flex justify-between">
-                                <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Objective</div>
-                                <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{project.objective}</div>
                             </div>
-                            <div className="flex justify-between">
-                                <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Created</div>
-                                <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{project.timeStamp}</div>
+                            <div>
+                                <div className="flex flex-col capitalize pt-4 pb-[24px]" >
+                                    <p className="font-instrument font-semibold text-[18px] leading-[28px] tracking-[-0.44px] text-[#101828]">{project.surveyName}</p>
+                                </div>
+
+                                <div className="flex flex-col gap-4">
+                                    <p className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">{project.description}</p>
+                                    <div className="flex justify-between">
+                                        <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Objective</div>
+                                        <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{project.surveyObjective}</div>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Created</div>
+                                        <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{project.targetCompletionDate}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex mt-[24px] items-center">
+                                <button onClick={() => handlePath(project.linking)} className="w-full py-[7px] flex justify-center items-center bg-[#585858] rounded-[10px] font-instrument text-[#ffffff]">
+                                    {project.buttonContent}
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="flex mt-[24px] items-center">
-                        <button onClick={() => handlePath(project.linking)} className="w-full py-[7px] flex justify-center items-center bg-[#585858] rounded-[10px] font-instrument text-[#ffffff]">
-                            {project.buttonContent}
-                        </button>
-                    </div>
-                </div>
-            ))}
+                    ))
+                )}
             </div>
 
 
