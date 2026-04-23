@@ -52,7 +52,7 @@ export default function SidebarContainer() {
   /*** PROJECT PLANNER FLOW ***/
   const ProjectPlannerFlow = () => {
     const { step } = useParams();
-    const plannerStep = parseInt(step, 10) || 1;
+    const plannerStep = parseInt(step, 5) || 1;
 
     const goToNextProjectStep = (step = null) => {
       const nextStep = step !== null ? step : plannerStep + 1;

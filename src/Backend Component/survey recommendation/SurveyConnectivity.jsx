@@ -15,7 +15,7 @@ import range from "../image/range.png";
 
 import { saveDraftAction } from "../../redux/slice/survey/surveySlice";
 
-const SurveyConnectivity = ({ surveyId, setSurveyId }) => {
+const SurveyConnectivity = ({ surveyId, setSurveyId, handleSaveToDraft }) => {
     const dispatch = useDispatch();
 
     // if (!surveyForm || Object.keys(surveyForm).length === 0) {
@@ -134,62 +134,62 @@ const SurveyConnectivity = ({ surveyId, setSurveyId }) => {
     // };
 
 
-    const handleSurveyChange = (e) => {
-        const { name, value } = e.target;
+    // const handleSurveyChange = (e) => {
+    //     const { name, value } = e.target;
 
-        setSurveyForm((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+    //     setSurveyForm((prev) => ({
+    //         ...prev,
+    //         [name]: value,
+    //     }));
+    // };
 
-    const handleSaveToDraft = async () => {
-        try {
-            console.log("🧪 SURVEY FORM:", surveyForm);
+    // const handleSaveToDraft = async () => {
+    //     try {
+    //         console.log("🧪 SURVEY FORM:", surveyForm);
 
-            const hasData = Object.values(surveyForm).some(
-                (val) => val !== "" && val !== null && val !== undefined
-            );
+    //         const hasData = Object.values(surveyForm).some(
+    //             (val) => val !== "" && val !== null && val !== undefined
+    //         );
 
-            if (!hasData) {
-                console.log("❌ No form data to save");
-                return;
-            }
+    //         if (!hasData) {
+    //             console.log("❌ No form data to save");
+    //             return;
+    //         }
 
-            const cleanData = Object.entries(surveyForm).reduce((acc, [key, value]) => {
-                if (value !== "" && value !== null && value !== undefined) {
-                    acc[key] = value;
-                }
-                return acc;
-            }, {});
+    //         const cleanData = Object.entries(surveyForm).reduce((acc, [key, value]) => {
+    //             if (value !== "" && value !== null && value !== undefined) {
+    //                 acc[key] = value;
+    //             }
+    //             return acc;
+    //         }, {});
 
-            const payload = {
-                ...cleanData,
-                status: "draft",
-                ...(surveyId && { surveyId }),
-            };
+    //         const payload = {
+    //             ...cleanData,
+    //             status: "draft",
+    //             ...(surveyId && { surveyId }),
+    //         };
 
-            console.log("📦 FINAL PAYLOAD:", payload);
+    //         console.log("📦 FINAL PAYLOAD:", payload);
 
-            const res = await dispatch(saveDraftAction(payload));
+    //         const res = await dispatch(saveDraftAction(payload));
 
-            const draft = res.payload?.data || res.payload;
+    //         const draft = res.payload?.data || res.payload;
 
-            if (draft?._id) {
-                setSurveyId(draft._id);
-            }
+    //         if (draft?._id) {
+    //             setSurveyId(draft._id);
+    //         }
 
-            Swal.fire({
-                icon: "success",
-                title: "Saved",
-                text: "Draft saved successfully",
-                timer: 1200,
-                showConfirmButton: false,
-            });
-        } catch (err) {
-            console.log("❌ SAVE DRAFT ERROR:", err);
-        }
-    };
+    //         Swal.fire({
+    //             icon: "success",
+    //             title: "Saved",
+    //             text: "Draft saved successfully",
+    //             timer: 1200,
+    //             showConfirmButton: false,
+    //         });
+    //     } catch (err) {
+    //         console.log("❌ SAVE DRAFT ERROR:", err);
+    //     }
+    // };
     const [survey] = useState([
         { id: 1, name: "project setup", range, photo: number1 },
         { id: 2, name: "survey area", range, photo: number2 },
@@ -201,11 +201,7 @@ const SurveyConnectivity = ({ surveyId, setSurveyId }) => {
 
     return (
         <div className="pey-12">
-            {/* <SurveyContent
-                title="survey recommendation"
-                survey={survey}
-            handleSaveToDraft={handleSaveToDraft}
-            /> */}
+            <SurveyContent title="survey recommendation" survey={survey} handleSaveToDraft={handleSaveToDraft}/>
 
             {/* <SurveyContent
                 title={title}

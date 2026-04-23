@@ -19,16 +19,19 @@ import first from "../image/🌿.png";
 import second from "../image/⛏️.png";
 import third from "../image/🏗️.png";
 import fourth from "../image/🏛️.png";
-import SurveyContent from "./SurveyContent";
+
+import SurveyConnectivity from "./SurveyConnectivity";
+import { useNavigate } from "react-router-dom";
 
 const SurveyFormValidation = ({ onNext }) => {
   const dispatch = useDispatch();
+  const navToMyProject = useNavigate();
 
   const { error: reduxError, success, successMessage } = useSelector(
     (state) => state.surveys
   );
 
-  const [content] = useState([
+  const [contents] = useState([
     { id: 1, photo: first, topic: "Environmental Assessment" },
     { id: 2, photo: second, topic: "Groundwater Exploration" },
     { id: 3, photo: third, topic: "Engineering Investigation" },
@@ -86,87 +89,26 @@ const SurveyFormValidation = ({ onNext }) => {
     }
   };
 
-  // ✅ SAVE DRAFT (FIXED COMPLETELY)
-  // const handleSaveToDraft = async () => {
-  //   console.log("yessssssssssssss");
-
-  //   try {
-  //     console.log("🧪 SURVEY FORM BEFORE SAVE:", surveyForm);
-
-  //     // const cleanData = Object.fromEntries(
-  //     //   Object.entries(surveyForm).filter(
-  //     //     ([_, v]) => v !== "" && v !== null && v !== undefined
-  //     //   )
-  //     // );
-
-  //     const cleanData = Object.entries(surveyForm).reduce((acc, [key, value]) => {
-  //       if (value !== "" && value !== null && value !== undefined) {
-  //         acc[key] = value;
-  //       }
-  //       return acc;
-  //     }, {});
-
-  //     const payload = {
-  //       ...cleanData,
-  //       status: "draft",
-  //       surveyId,
-  //     };
-
-  //     console.log("📦 FINAL PAYLOAD:", payload);
-
-  //     const res = await dispatch(saveDraftAction(payload));
-
-  //     console.log("📥 RESPONSE:", res);
-
-  //     // if (res.payload?._id) {
-  //     //   setSurveyId(res.payload._id);
-  //     // }
-
-  //     const draft = res.payload?.data || res.payload;
-
-  //     if (draft?._id) {
-  //       setSurveyId(draft._id);
-  //     }
-
-  //     Swal.fire({
-  //       icon: "success",
-  //       title: "Saved",
-  //       text: "Draft saved successfully",
-  //       timer: 1200,
-  //       showConfirmButton: false,
-  //     });
-  //   } catch (err) {
-  //     console.log("❌ SAVE DRAFT ERROR:", err);
-  //   }
-  // };
-
+  // ✅ SAVE TO DRAFT
   const handleSaveToDraft = async () => {
     try {
-      console.log("🧪 SURVEY FORM:", surveyForm);
-
-      if (!surveyForm) {
-        console.log("❌ surveyForm is missing");
-        return;
-      }
-
-      const cleanData = Object.entries(surveyForm).reduce((acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {});
+      const cleanData = Object.entries(surveyForm).reduce(
+        (acc, [key, value]) => {
+          if (value !== "" && value !== null && value !== undefined) {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {}
+      );
 
       const payload = {
         ...cleanData,
         status: "draft",
-        ...(surveyId && { surveyId }),
+        ...(surveyId && { _id: surveyId }), // ✅ FIXED
       };
 
-      console.log("📦 DRAFT PAYLOAD:", payload);
-
-      const res = await dispatch(saveDraftAction(payload));
-
-      const draft = res.payload?.data || res.payload;
+      const draft = await dispatch(saveDraftAction(payload)).unwrap();
 
       if (draft?._id) {
         setSurveyId(draft._id);
@@ -176,12 +118,15 @@ const SurveyFormValidation = ({ onNext }) => {
         icon: "success",
         title: "Saved",
         text: "Draft saved successfully",
-        timer: 1200,
-        showConfirmButton: false,
+      }).then(() => {
+        navToMyProject("/dashboard/my-project");
       });
-
     } catch (err) {
-      console.log("❌ SAVE DRAFT ERROR:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err?.message || "Failed to save draft",
+      });
     }
   };
 
@@ -209,18 +154,16 @@ const SurveyFormValidation = ({ onNext }) => {
       return;
     }
 
-    const result = await dispatch(createSurveyAction(surveyForm));
-
-    if (result?.payload?.status === "failed") {
+    try {
+      await dispatch(createSurveyAction(surveyForm)).unwrap();
+      setSubmitted(true);
+    } catch (err) {
       Swal.fire({
         icon: "error",
-        title: "Duplicate Survey",
-        text: result.payload.message,
+        title: "Error",
+        text: err?.message || "Failed to create survey",
       });
-      return;
     }
-
-    setSubmitted(true);
   };
 
   // ✅ SUCCESS HANDLER
@@ -230,13 +173,13 @@ const SurveyFormValidation = ({ onNext }) => {
         icon: "success",
         title: "Saved",
         text: successMessage || "Survey saved successfully",
-      }).then(() => {
+      }).then(async () => {
         setSubmitted(false);
         dispatch(resetSuccessAction());
 
-        dispatch(getUserProfileAction()).then(() => {
-          if (onNext) onNext(2);
-        });
+        await dispatch(getUserProfileAction());
+
+        if (onNext) onNext(2);
       });
     }
   }, [submitted, success, successMessage, dispatch, onNext]);
@@ -256,42 +199,22 @@ const SurveyFormValidation = ({ onNext }) => {
   }, [submitted, reduxError, dispatch]);
 
   return (
-    <div className="md:w-[967px] border border-[#DADCE0] rounded-[10px] py-[10px] mx-auto mt-10">
-      {/* <SurveyForm
-        title="Project Setup"
-        content={content}
-        surveyForm={surveyForm}
-        error={error}
-        handleSurveyChange={handleSurveyChange}
-        handleSurveySubmit={handleSurveySubmit}
-        handleSurveyObjective={handleSurveyObjective}
-      // handleSaveToDraft={handleSaveToDraft}
-      /> */}
+    <>
+      <SurveyConnectivity handleSaveToDraft={handleSaveToDraft} />
 
-      <div className="flex">
-         <SurveyContent
-        survey={content}
-        handleSaveToDraft={handleSaveToDraft}
-      />
+      <div className="md:w-[967px] border border-[#DADCE0] rounded-[10px] py-[10px] mx-auto mt-10">
+        <SurveyForm
+          title="Project Setup"
+          content={contents}
+          surveyForm={surveyForm}
+          error={error}
+          handleSurveyChange={handleSurveyChange}
+          handleSurveySubmit={handleSurveySubmit}
+          handleSurveyObjective={handleSurveyObjective}
+          handleSaveToDraft={handleSaveToDraft}
+        />
       </div>
-
-      <SurveyForm
-        title="Project Setup"
-        content={content}
-        surveyForm={surveyForm}
-        error={error}
-        handleSurveyChange={handleSurveyChange}
-        handleSurveySubmit={handleSurveySubmit}
-        handleSurveyObjective={handleSurveyObjective}
-        handleSaveToDraft={handleSaveToDraft}   // ✅ ADD THIS
-      />
-
-      {/* <SurveyContent
-        survey={content}
-        handleSaveToDraft={handleSaveToDraft}
-      /> */}
-
-    </div>
+    </>
   );
 };
 

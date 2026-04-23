@@ -31,7 +31,7 @@ export default function SurveyContainer() {
 
       {/* Hide SurveyConnectivity on step 6 */}
       {/* {surveyStep !== 6 && <SurveyConnectivity />} */}
-      {surveyStep !== 6 && <SurveyConnectivity
+      {surveyStep !== 1 && surveyStep !== 6 && <SurveyConnectivity
         surveyForm={surveyForm}
         setSurveyForm={setSurveyForm}
         surveyId={surveyId}
