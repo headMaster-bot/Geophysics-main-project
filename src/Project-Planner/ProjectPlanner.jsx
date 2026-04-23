@@ -1,4 +1,4 @@
-import save from "./Save.jpg";
+
 import plusIcon from "../Backend Component/image/Plus.jpg";
 import left from "../Backend Component/image/ChevronLeft.png";
 import right from "../Backend Component/image/ChevronRight.png";
