@@ -20,15 +20,15 @@ import first from "../image/🌿.png";
 import second from "../image/⛏️.png";
 import third from "../image/🏗️.png";
 import fourth from "../image/🏛️.png";
-<<<<<<< HEAD
+// <<<<<<< HEAD
 import SurveyContent from "./SurveyContent";
 import { useParams } from "react-router-dom";
 // const { survey } = useSelector((state) => state.surveys);
-=======
+// =======
 
 import SurveyConnectivity from "./SurveyConnectivity";
 import { useNavigate } from "react-router-dom";
->>>>>>> 312e976465945fab6535197eff0613843bc951a6
+// >>>>>>> 312e976465945fab6535197eff0613843bc951a6
 
 const SurveyFormValidation = ({ onNext }) => {
   const dispatch = useDispatch();
@@ -46,13 +46,13 @@ const SurveyFormValidation = ({ onNext }) => {
     (state) => state.surveys
   );
 
-<<<<<<< HEAD
+  // <<<<<<< HEAD
 
 
-  const [content] = useState([
-=======
+  // const [content] = useState([
+  // =======
   const [contents] = useState([
->>>>>>> 312e976465945fab6535197eff0613843bc951a6
+    // >>>>>>> 312e976465945fab6535197eff0613843bc951a6
     { id: 1, photo: first, topic: "Environmental Assessment" },
     { id: 2, photo: second, topic: "Groundwater Exploration" },
     { id: 3, photo: third, topic: "Engineering Investigation" },
@@ -229,7 +229,7 @@ const SurveyFormValidation = ({ onNext }) => {
         text: reduxError,
       }).then(() => {
         setSubmitted(false);
-        dispatch(resetErrAction());
+        // dispatch(resetxErrAction());
       });
     }
   }, [submitted, reduxError, dispatch]);
@@ -238,11 +238,12 @@ const SurveyFormValidation = ({ onNext }) => {
     <>
       <SurveyConnectivity handleSaveToDraft={handleSaveToDraft} />
 
-<<<<<<< HEAD
       <div className="flex">
-        <SurveyContent
+        {/* <SurveyContent
           survey={content}
-=======
+        /> */}
+      </div>
+
       <div className="md:w-[967px] border border-[#DADCE0] rounded-[10px] py-[10px] mx-auto mt-10">
         <SurveyForm
           title="Project Setup"
@@ -251,11 +252,11 @@ const SurveyFormValidation = ({ onNext }) => {
           error={error}
           handleSurveyChange={handleSurveyChange}
           handleSurveySubmit={handleSurveySubmit}
-          handleSurveyObjective={handleSurveyObjective}
->>>>>>> 312e976465945fab6535197eff0613843bc951a6
-          handleSaveToDraft={handleSaveToDraft}
+          handleSurveyObjective={handleSurveyObjective} 
         />
+
       </div>
+
     </>
   );
 };

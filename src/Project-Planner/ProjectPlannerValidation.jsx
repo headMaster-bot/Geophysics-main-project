@@ -8,9 +8,7 @@ import ProjectPlanner from "./ProjectPlanner";
 import { createProjectAction, saveDraftAction } from "../redux/slice/project/projectSlice";
 
 const ProjectPlannerValidation = ({ onNext }) => {
-<<<<<<< HEAD
     const saveToDraft = useNavigate();
-=======
     // const saveToDraft = useNavigate();
     // const handleSaveToDraft = () => {
     //     Swal.fire({
@@ -22,7 +20,6 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //     });
     //     saveToDraft('/dashboard/my-project');
     // }
->>>>>>> 312e976465945fab6535197eff0613843bc951a6
     const dispatch = useDispatch();
 
 
@@ -111,50 +108,52 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //     }
     // };
 
-    const handleSaveToDraft = async () => {
-        try {
-            console.log("🧪 SURVEY FORM:", projectDetails);
+    // const handleSaveToDraft = async () => {
+    //     try {
+    //         console.log("🧪 SURVEY FORM:", projectDetails);
 
-            if (!projectDetails) {
-                console.log("❌ surveyForm is missing");
-                return;
-            }
+    //         if (!projectDetails) {
+    //             console.log("❌ surveyForm is missing");
+    //             return;
+    //         }
 
-            const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
-                if (value !== "" && value !== null && value !== undefined) {
-                    acc[key] = value;
-                }
-                return acc;
-            }, {});
+    //         const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
+    //             if (value !== "" && value !== null && value !== undefined) {
+    //                 acc[key] = value;
+    //             }
+    //             return acc;
+    //         }, {});
 
-            const payload = {
-                ...cleanData,
-                status: "draft",
-                ...(projectId && { projectId }),
-            };
+    //         const payload = {
+    //             ...cleanData,
+    //             status: "draft",
+    //             ...(projectId && { projectId }),
+    //         };
 
-            console.log("📦 DRAFT PAYLOAD:", payload);
+    //         console.log("📦 DRAFT PAYLOAD:", payload);
 
-            const res = await dispatch(saveDraftAction(payload));
+    //         const res = await dispatch(saveDraftAction(payload));
+    //         console.log(res, "created");
+            
 
-            const draft = res.payload?.data || res.payload;
+    //         const draft = res.payload?.data || res.payload;
 
-            if (draft?._id) {
-                setProjectId(draft._id);
-            }
+    //         if (draft?._id) {
+    //             setProjectId(draft._id);
+    //         }
 
-            Swal.fire({
-                icon: "success",
-                title: "Saved",
-                text: "Draft saved successfully",
-                timer: 1200,
-                showConfirmButton: false,
-            });
+    //         Swal.fire({
+    //             icon: "success",
+    //             title: "Saved",
+    //             text: "Draft saved successfully",
+    //             timer: 1200,
+    //             showConfirmButton: false,
+    //         });
 
-        } catch (err) {
-            console.log("❌ SAVE DRAFT ERROR:", err);
-        }
-    };
+    //     } catch (err) {
+    //         console.log("❌ SAVE DRAFT ERROR:", err);
+    //     }
+    // };
 
     const onSelectTeamMember = (e) => {
         setSelectedTeamMemberId(e.target.value);
@@ -304,14 +303,11 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 onAddTeamMember={onAddTeamMember}
                 teamMembers={teamMembers}
                 onNext={onNext}
-<<<<<<< HEAD
-                handleSaveToDraft={handleSaveToDraft}
+                // handleSaveToDraft={handleSaveToDraft}
 
-=======
 
                 // handleSaveToDraft={handleSaveToDraft}
                 
->>>>>>> 312e976465945fab6535197eff0613843bc951a6
             />
         </>
     );
