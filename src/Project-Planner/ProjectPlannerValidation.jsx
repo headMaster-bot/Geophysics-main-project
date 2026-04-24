@@ -9,6 +9,12 @@ import { createProjectAction, saveDraftAction } from "../redux/slice/project/pro
 
 const ProjectPlannerValidation = ({ onNext }) => {
     const saveToDraft = useNavigate();
+    const dispatch = useDispatch();
+
+
+    const [availableUsers, setAvailableUsers] = useState([]);
+    const [teamMembers, setTeamMembers] = useState([]);
+    const [selectedTeamMemberId, setSelectedTeamMemberId] = useState("");
     // const handleSaveToDraft = () => {
     //     Swal.fire({
     //     position: "top-end",
@@ -33,44 +39,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
         startDate: "",
         endDate: "",
     });
-    const [project, setProject] = ("")
-    const handleSaveToDraft = async (projectId) => {
-        console.log("working");
-        
-        try {
-            const payload = {
-                ...projectDetails,
-                ...(projectId && { projectId }), // only include if exists
-            };
-
-            const res = await dispatch(saveDraftAction(payload)).unwrap();
-
-            console.log("Saved:", res);
-
-            // 🔥 THIS LINE MAKES EVERYTHING WORK
-            if (res?.project?._id) {
-                projectId(res.project._id);
-            }
-
-            Swal.fire({
-                icon: "success",
-                title: "Saved",
-                text: "Draft saved successfully",
-                timer: 1200,
-                showConfirmButton: false,
-            });
-
-        } catch (err) {
-            console.log("❌ ERROR:", err);
-        }
-    };
-    const dispatch = useDispatch();
-
-
-
-    const [availableUsers, setAvailableUsers] = useState([]);
-    const [teamMembers, setTeamMembers] = useState([]);
-    const [selectedTeamMemberId, setSelectedTeamMemberId] = useState("");
+    const [projectId, setProjectId] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -84,6 +53,94 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
         fetchUsers();
     }, []);
+
+    // const [project, setProject] = useState(null)
+
+    // const handleSaveToDraft = async (projectId) => {
+    //     console.log("working");
+    //     if (
+    //         !projectDetails.projectName &&
+    //         !projectDetails.description &&
+    //         !projectDetails.startDate &&
+    //         !projectDetails.endDate
+    //     ) {
+    //         console.log("❌ Empty draft — still allowed or block if you want");
+    //         // OPTIONAL: return here if you truly want to block empty drafts
+    //         // return;
+    //     }
+
+    //     try {
+    //         const payload = {
+    //             ...projectDetails,
+    //             ...(projectId && { projectId }), // only include if exists
+    //         };
+
+    //         const res = await dispatch(saveDraftAction(payload)).unwrap();
+
+    //         console.log("Saved:", res);
+
+    //         // 🔥 THIS LINE MAKES EVERYTHING WORK
+    //         if (res?.project?._id) {
+    //             setProject(res.project._id);
+    //         }
+
+    //         Swal.fire({
+    //             icon: "success",
+    //             title: "Saved",
+    //             text: "Draft saved successfully",
+    //             timer: 1200,
+    //             showConfirmButton: false,
+    //         });
+
+    //     } catch (err) {
+    //         console.log("❌ ERROR:", err);
+    //     }
+    // };
+
+    const handleSaveToDraft = async () => {
+        try {
+            console.log("🧪 SURVEY FORM:", projectDetails);
+
+            if (!projectDetails) {
+                console.log("❌ surveyForm is missing");
+                return;
+            }
+
+            const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
+                if (value !== "" && value !== null && value !== undefined) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
+
+            const payload = {
+                ...cleanData,
+                status: "draft",
+                ...(projectId && { projectId }),
+            };
+
+            console.log("📦 DRAFT PAYLOAD:", payload);
+
+            const res = await dispatch(saveDraftAction(payload));
+
+            const draft = res.payload?.data || res.payload;
+
+            if (draft?._id) {
+                setProjectId(draft._id);
+            }
+
+            Swal.fire({
+                icon: "success",
+                title: "Saved",
+                text: "Draft saved successfully",
+                timer: 1200,
+                showConfirmButton: false,
+            });
+
+        } catch (err) {
+            console.log("❌ SAVE DRAFT ERROR:", err);
+        }
+    };
 
     const onSelectTeamMember = (e) => {
         setSelectedTeamMemberId(e.target.value);
@@ -233,7 +290,6 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 onAddTeamMember={onAddTeamMember}
                 teamMembers={teamMembers}
                 onNext={onNext}
-
                 handleSaveToDraft={handleSaveToDraft}
 
             />

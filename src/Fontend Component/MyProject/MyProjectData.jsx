@@ -3,6 +3,7 @@ import MyProject from './MyProject'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDraftAction, updateSurveyStatusAction } from '../../redux/slice/survey/surveySlice';
+import { fetchProjectDraftAction } from '../../redux/slice/project/projectSlice';
 
 export default function MyProjectData() {
 
@@ -99,13 +100,28 @@ export default function MyProjectData() {
   // }
   const handleOpenDraft = async (surveyId) => {
     console.log("working");
-    
+
     try {
       const payload = await dispatch(fetchDraftAction(surveyId)).unwrap();
       console.log(payload, "payload");
-      
+
 
       navigate(`/dashboard/survey/${surveyId}`);
+    } catch (err) {
+      console.log("Error fetching draft:", err);
+    }
+  };
+
+  // get saved draft button
+  const handleOpenPlannerDraft = async (projectId) => {
+    console.log("working");
+
+    try {
+      const payload = await dispatch(fetchProjectDraftAction(projectId)).unwrap();
+      console.log(payload, "payload");
+
+
+      navigate(`/dashboard/projects/${projectId}`);
     } catch (err) {
       console.log("Error fetching draft:", err);
     }
@@ -123,6 +139,7 @@ export default function MyProjectData() {
         // projectData={projectData}
         handleOpenDraft={handleOpenDraft}
         handleStatusUpdate={handleStatusUpdate}
+        handleOpenPlannerDraft={handleOpenPlannerDraft}
       />
     </div>
   )

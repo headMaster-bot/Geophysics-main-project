@@ -331,7 +331,7 @@ export const fetchDraftAction = createAsyncThunk(
                 config
             );
             console.log(data, "get draft");
-            
+
             return data;
         } catch (err) {
             return rejectWithValue(err.response?.data);
@@ -531,19 +531,18 @@ const surveySlice = createSlice({
         });
 
         // get draft
-        
-            builder.addCase(fetchDraftAction.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            builder.addCase(fetchDraftAction.fulfilled, (state, action) => {
-                state.loading = false;
-                state.survey = action.payload.survey;
-            })
-            builder.addCase(fetchDraftAction.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload?.message;
-            });
+        builder.addCase(fetchDraftAction.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        builder.addCase(fetchDraftAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.survey = action.payload.survey;
+        })
+        builder.addCase(fetchDraftAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload?.message;
+        });
 
 
         // Reset error and success

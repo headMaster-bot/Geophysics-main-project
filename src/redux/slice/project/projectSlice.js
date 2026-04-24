@@ -5,9 +5,10 @@ import { resetErrAction, resetSuccessAction } from "../globalActions/globalActio
 
 // initialState
 const initialState = {
-    loading: false,
+    loadingProject: false,
     error: null,
     projects: [],
+    projectDrafts: [],
     project: null,
     success: false,
     successMessage: null,
@@ -119,6 +120,8 @@ export const saveDraftAction = createAsyncThunk(
     async (payload, { rejectWithValue, getState }) => {
         try {
             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            console.log(token, "savedraft");
+
             const config = {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -130,10 +133,91 @@ export const saveDraftAction = createAsyncThunk(
                 payload,
                 config
             );
-            console.log(data);
+            console.log(data, "project savekkkkkk");
 
 
             return data; // { survey: {...} }
+        } catch (err) {
+            return rejectWithValue(err.response?.data);
+        }
+    }
+);
+
+// get draft
+// export const fetchDraftAction = createAsyncThunk(
+//     "survey/fetchDraft",
+//     async (surveyId, { rejectWithValue, getState }) => {
+//         try {
+//             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+//             console.log(token, "fetch all");
+
+//             const config = {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             };
+//             const { data } = await axios.get(
+//                 `${baseUrl}/surveys/draft/${surveyId}`,
+//                 config
+//             );
+//             console.log(data, "get draft");
+
+//             return data;
+//         } catch (err) {
+//             return rejectWithValue(err.response?.data);
+//         }
+//     }
+// );
+// fetch draft action
+export const fetchProjectDraftsAction = createAsyncThunk(
+    "project/fetchDrafts",
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            console.log(token, "fetch all");
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const { data } = await axios.get(
+                `${baseUrl}/projects/gets-draft?status=draft`,
+                config
+            );
+
+            console.log(data, "yess");
+
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+
+// get draft
+export const fetchProjectDraftAction = createAsyncThunk(
+    "project/fetchDraft",
+    async (projectId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            console.log("CALLING:", `${baseUrl}/projects/draft/${projectId}`);
+            console.log("PROJECT ID:", projectId);
+            const { data } = await axios.get(
+                `${baseUrl}/projects/draft/${projectId}`,
+                config
+            );
+            console.log(data, "get draft");
+
+            return data;
         } catch (err) {
             return rejectWithValue(err.response?.data);
         }
@@ -235,29 +319,101 @@ const projectSlice = createSlice({
             state.success = false;
         });
         // save to draft
-         builder.addCase(saveDraftAction.pending, (state) => {
+
+        // create draft
+        builder.addCase(saveDraftAction.pending, (state) => {
             state.loading = true;
-            state.error = null;
-        });
+        })
         builder.addCase(saveDraftAction.fulfilled, (state, action) => {
             state.loading = false;
-            state.survey = action.payload.survey; // ✅ must be survey
+            state.success = true;
+
+            // update or insert draft
+            const index = state.projectDrafts.findIndex(
+                (d) => d._id === action.payload._id
+            );
+
+            if (index !== -1) {
+                state.projectDrafts[index] = action.payload;
+            } else {
+                state.projectDrafts.unshift(action.payload);
+            }
+
+            state.currentDraft = action.payload;
         });
         builder.addCase(saveDraftAction.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
-            state.success = false;
+        });
+        // builder.addCase(fetchDraftAction.pending, (state) => {
+        //     state.loading = true;
+        //     state.error = null;
+        // });
+        // // builder.addCase(saveDraftAction.fulfilled, (state, action) => {
+        // //     state.loading = false;
+        // //     state.projectDrat = action.payload.survey; // ✅ must be survey
+        // // });
+        // builder.addCase(fetchDraftAction.fulfilled, (state, action) => {
+        //     state.loading = false;
+        //     state.success = true;
+
+        //     // update or insert draft
+        //     const index = state.projectDrafts.findIndex(
+        //         (d) => d._id === action.payload._id
+        //     );
+
+        //     if (index !== -1) {
+        //         state.projectDrafts[index] = action.payload;
+        //     } else {
+        //         state.projectDrafts.unshift(action.payload);
+        //     }
+
+        //     state.currentDraft = action.payload;
+        // });
+        // builder.addCase(fetchDraftAction.rejected, (state, action) => {
+        //     state.loading = false;
+        //     state.error = action.payload;
+        //     state.success = false;
+        // });
+
+        // FETCH DRAFTS
+        // =========================
+        builder.addCase(fetchProjectDraftsAction.pending, (state) => {
+            state.loading = true;
+        })
+        builder.addCase(fetchProjectDraftsAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.projectDrafts = action.payload;
+        })
+        builder.addCase(fetchProjectDraftsAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
         });
 
-    // Reset error and success
-    builder.addCase(resetErrAction.pending, (state) => {
-        state.error = null;
-    });
-    builder.addCase(resetSuccessAction.pending, (state) => {
-        state.success = false;
-        state.successMessage = null;
-    });
-},
+        // get draft
+        builder.addCase(fetchProjectDraftAction.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        builder.addCase(fetchProjectDraftAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.project = action.payload.project;
+        })
+        builder.addCase(fetchProjectDraftAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload?.message;
+        });
+
+
+        // Reset error and success
+        builder.addCase(resetErrAction.pending, (state) => {
+            state.error = null;
+        });
+        builder.addCase(resetSuccessAction.pending, (state) => {
+            state.success = false;
+            state.successMessage = null;
+        });
+    },
 });
 
 // Generate reducers
