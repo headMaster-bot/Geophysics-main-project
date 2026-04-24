@@ -3,7 +3,7 @@ import search from "../../Backend Component/image/Search.png"
 import { fetchDraftsAction } from "../../redux/slice/survey/surveySlice";
 import { useEffect } from "react";
 
-export default function MyProject({ projectData, handlePath, handleStatusUpdate }) {
+export default function MyProject({ projectData, handleOpenDraft, handleStatusUpdate, surveyId }) {
     // dispatch
     const dispatch = useDispatch();
     // const { profile } = useSelector(state => state?.users)
@@ -91,7 +91,8 @@ export default function MyProject({ projectData, handlePath, handleStatusUpdate 
 
                             <div className="flex mt-[24px] items-center">
                                 <button
-                                    onClick={ handlePath}
+                                    // onClick={ handlePath}
+                                    onClick={() => handleOpenDraft(project._id)}
                                     className="w-full py-[7px] flex justify-center items-center bg-[#585858] rounded-[10px] font-instrument text-[#ffffff]">
                                     Open Project
                                 </button>

@@ -2,7 +2,7 @@ import React from 'react'
 import MyProject from './MyProject'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateSurveyStatusAction } from '../../redux/slice/survey/surveySlice';
+import { fetchDraftAction, updateSurveyStatusAction } from '../../redux/slice/survey/surveySlice';
 
 export default function MyProjectData() {
 
@@ -79,24 +79,37 @@ export default function MyProjectData() {
   //     linking: '/dashboard/project/3'
   //   }
   // ]
-  const projectData = (profile?.message?.survey || []).map((project) => ({
-    id: project._id,   // ✅ MUST BE REAL ID
-    title: project.title,
-    status: project.status,
-    action: project.status,
-    timeStamp: project.createdAt,
-    objective: project.objective,
-    Content: project.description,
-    buttonContent: "Open Project",
-    // linking: `/dashboard/survey/${project._id}`,
-    linking: `/dashboard/survey/${project._id}/1`,
-  }));
+  // const projectData = (profile?.message?.survey || []).map((project) => ({
+  //   id: project._id,   // ✅ MUST BE REAL ID
+  //   title: project.title,
+  //   status: project.status,
+  //   action: project.status,
+  //   timeStamp: project.createdAt,
+  //   objective: project.objective,
+  //   Content: project.description,
+  //   buttonContent: "Open Project",
+  //   // linking: `/dashboard/survey/${project._id}`,
+  //   linking: `/dashboard/survey/${project._id}/1`,
+  // }));
 
-  const handlePath = (path) => {
-    // console.log("working");
+  // const handlePath = (path) => {
+  //   // console.log("working");
+
+  //   navigate("/dashboard/survey/1");
+  // }
+  const handleOpenDraft = async (surveyId) => {
+    console.log("working");
     
-    navigate("/dashboard/survey/1");
-  }
+    try {
+      const payload = await dispatch(fetchDraftAction(surveyId)).unwrap();
+      console.log(payload, "payload");
+      
+
+      navigate(`/dashboard/survey/${surveyId}`);
+    } catch (err) {
+      console.log("Error fetching draft:", err);
+    }
+  };
 
   return (
     <div>
@@ -107,8 +120,8 @@ export default function MyProjectData() {
         handleStatusUpdate={handleStatusUpdate}
       /> */}
       <MyProject
-        projectData={projectData}
-        handlePath={handlePath}
+        // projectData={projectData}
+        handleOpenDraft={handleOpenDraft}
         handleStatusUpdate={handleStatusUpdate}
       />
     </div>

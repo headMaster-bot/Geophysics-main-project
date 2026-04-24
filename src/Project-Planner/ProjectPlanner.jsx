@@ -28,7 +28,7 @@ export default function ProjectPlanner({
 
           <div className="px-4 rounded-[10px] border-2 border-[#DADCEO] flex gap-2 items-center">
             <img src={save} alt="save" />
-            <button type="button" onClick={() => handleSaveToDraft()} className="front-instrument font-medium text-[16px]">
+            <button type="button" onClick={handleSaveToDraft} className="front-instrument font-medium text-[16px]">
               Save as Draft
             </button>
           </div>

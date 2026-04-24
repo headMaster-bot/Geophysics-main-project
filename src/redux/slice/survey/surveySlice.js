@@ -330,6 +330,8 @@ export const fetchDraftAction = createAsyncThunk(
                 `${baseUrl}/surveys/draft/${surveyId}`,
                 config
             );
+            console.log(data, "get draft");
+            
             return data;
         } catch (err) {
             return rejectWithValue(err.response?.data);

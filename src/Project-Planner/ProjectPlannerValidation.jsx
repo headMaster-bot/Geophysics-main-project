@@ -5,21 +5,20 @@ import baseUrl from "../utils/baseUrl";
 import { useNavigate } from 'react-router-dom'
 import Swal from "sweetalert2";
 import ProjectPlanner from "./ProjectPlanner";
-import { createProjectAction } from "../redux/slice/project/projectSlice";
+import { createProjectAction, saveDraftAction } from "../redux/slice/project/projectSlice";
 
 const ProjectPlannerValidation = ({ onNext }) => {
     const saveToDraft = useNavigate();
-    const handleSaveToDraft = () => {
-        Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Your work has been saved",
-        showConfirmButton: false,
-        timer: 1500
-        });
-        saveToDraft('/dashboard/my-project');
-    }
-    const dispatch = useDispatch();
+    // const handleSaveToDraft = () => {
+    //     Swal.fire({
+    //     position: "top-end",
+    //     icon: "success",
+    //     title: "Your work has been saved",
+    //     showConfirmButton: false,
+    //     timer: 1500
+    //     });
+    //     saveToDraft('/dashboard/my-project');
+    // }
 
     const [projectDetails, setProjectDetails] = useState({
         projectName: "",
@@ -34,6 +33,40 @@ const ProjectPlannerValidation = ({ onNext }) => {
         startDate: "",
         endDate: "",
     });
+    const [project, setProject] = ("")
+    const handleSaveToDraft = async (projectId) => {
+        console.log("working");
+        
+        try {
+            const payload = {
+                ...projectDetails,
+                ...(projectId && { projectId }), // only include if exists
+            };
+
+            const res = await dispatch(saveDraftAction(payload)).unwrap();
+
+            console.log("Saved:", res);
+
+            // 🔥 THIS LINE MAKES EVERYTHING WORK
+            if (res?.project?._id) {
+                projectId(res.project._id);
+            }
+
+            Swal.fire({
+                icon: "success",
+                title: "Saved",
+                text: "Draft saved successfully",
+                timer: 1200,
+                showConfirmButton: false,
+            });
+
+        } catch (err) {
+            console.log("❌ ERROR:", err);
+        }
+    };
+    const dispatch = useDispatch();
+
+
 
     const [availableUsers, setAvailableUsers] = useState([]);
     const [teamMembers, setTeamMembers] = useState([]);
@@ -57,19 +90,19 @@ const ProjectPlannerValidation = ({ onNext }) => {
     };
 
     const onAddTeamMember = () => {
-    if (!selectedTeamMemberId) return;
+        if (!selectedTeamMemberId) return;
 
-    const member = availableUsers.find(
-        (user) => user._id === selectedTeamMemberId
-    );
+        const member = availableUsers.find(
+            (user) => user._id === selectedTeamMemberId
+        );
 
-    if (member && !teamMembers.some((m) => m._id === member._id)) {
-        setTeamMembers((prev) => [...prev, member]);
-    }
+        if (member && !teamMembers.some((m) => m._id === member._id)) {
+            setTeamMembers((prev) => [...prev, member]);
+        }
 
-    // ✅ Move to next step when button is clicked
-    if (onNext) onNext(2);
-};
+        // ✅ Move to next step when button is clicked
+        if (onNext) onNext(2);
+    };
 
     // ✅ Handle input change
     const handleVarChange = (e) => {
@@ -202,7 +235,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 onNext={onNext}
 
                 handleSaveToDraft={handleSaveToDraft}
-                
+
             />
         </>
     );

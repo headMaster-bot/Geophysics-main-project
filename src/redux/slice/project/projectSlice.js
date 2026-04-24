@@ -27,7 +27,7 @@ export const createProjectAction = createAsyncThunk(
             };
             const res = await axios.post(`${baseUrl}/projects/create-project`, projectData, config);
             console.log(res.data);
-            
+
             return res.data;
         } catch (error) {
             return rejectWithValue(error?.response?.data?.message || error.message);
@@ -49,7 +49,7 @@ export const getUserProjectsAction = createAsyncThunk(
             const res = await axios.get(`${baseUrl}/projects/all-projects`, config);
             console.log(res.data, "Project-planner");
             return res.data;
-            
+
         } catch (error) {
             return rejectWithValue(error?.response?.data?.message || error.message);
         }
@@ -110,6 +110,32 @@ export const deleteProjectAction = createAsyncThunk(
             return res.data;
         } catch (error) {
             return rejectWithValue(error?.response?.data?.message || error.message);
+        }
+    }
+);
+// save to draft
+export const saveDraftAction = createAsyncThunk(
+    "project/saveDraft",
+    async (payload, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            const { data } = await axios.post(
+                `${baseUrl}/projects/save-to-draft`,
+                payload,
+                config
+            );
+            console.log(data);
+
+
+            return data; // { survey: {...} }
+        } catch (err) {
+            return rejectWithValue(err.response?.data);
         }
     }
 );
@@ -208,16 +234,30 @@ const projectSlice = createSlice({
             state.error = action.payload;
             state.success = false;
         });
-
-        // Reset error and success
-        builder.addCase(resetErrAction.pending, (state) => {
+        // save to draft
+         builder.addCase(saveDraftAction.pending, (state) => {
+            state.loading = true;
             state.error = null;
         });
-        builder.addCase(resetSuccessAction.pending, (state) => {
-            state.success = false;
-            state.successMessage = null;
+        builder.addCase(saveDraftAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.survey = action.payload.survey; // ✅ must be survey
         });
-    },
+        builder.addCase(saveDraftAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+            state.success = false;
+        });
+
+    // Reset error and success
+    builder.addCase(resetErrAction.pending, (state) => {
+        state.error = null;
+    });
+    builder.addCase(resetSuccessAction.pending, (state) => {
+        state.success = false;
+        state.successMessage = null;
+    });
+},
 });
 
 // Generate reducers

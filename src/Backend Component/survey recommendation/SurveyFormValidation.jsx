@@ -6,6 +6,7 @@ import SurveyForm from "./SurveyForm";
 
 import {
   createSurveyAction,
+  fetchDraftAction,
   saveDraftAction,
 } from "../../redux/slice/survey/surveySlice";
 
@@ -20,13 +21,25 @@ import second from "../image/⛏️.png";
 import third from "../image/🏗️.png";
 import fourth from "../image/🏛️.png";
 import SurveyContent from "./SurveyContent";
+import { useParams } from "react-router-dom";
+// const { survey } = useSelector((state) => state.surveys);
 
 const SurveyFormValidation = ({ onNext }) => {
   const dispatch = useDispatch();
 
-  const { error: reduxError, success, successMessage } = useSelector(
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchDraftAction(id));
+    }
+  }, [id, dispatch]);
+
+  const { error: reduxError, success, successMessage, survey } = useSelector(
     (state) => state.surveys
   );
+
+
 
   const [content] = useState([
     { id: 1, photo: first, topic: "Environmental Assessment" },
@@ -53,6 +66,21 @@ const SurveyFormValidation = ({ onNext }) => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (survey) {
+      setSurveyForm({
+        surveyName: survey.surveyName || "",
+        description: survey.description || "",
+        surveyObjective: survey.surveyObjective || "",
+        others: survey.others || "",
+        clientName: survey.clientName || "",
+        clientEmail: survey.clientEmail || "",
+        targetCompletionDate: survey.targetCompletionDate || "",
+      });
+    }
+  }, [survey]);
+
 
   // ✅ HANDLE INPUT CHANGE
   const handleSurveyChange = (e) => {
@@ -269,10 +297,10 @@ const SurveyFormValidation = ({ onNext }) => {
       /> */}
 
       <div className="flex">
-         <SurveyContent
-        survey={content}
-        handleSaveToDraft={handleSaveToDraft}
-      />
+        <SurveyContent
+          survey={content}
+          handleSaveToDraft={handleSaveToDraft}
+        />
       </div>
 
       <SurveyForm
