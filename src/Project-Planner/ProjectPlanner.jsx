@@ -1,7 +1,8 @@
-import save from "./Save.jpg";
+
 import plusIcon from "../Backend Component/image/Plus.jpg";
 import left from "../Backend Component/image/ChevronLeft.png";
 import right from "../Backend Component/image/ChevronRight.png";
+import ProjectSaveDraftValidation from "./ProjectSaveDraftValidation";
 
 export default function ProjectPlanner({
   error = {},
@@ -16,9 +17,9 @@ export default function ProjectPlanner({
   return (
     <form onSubmit={HandleSubmit}>
       <div className="flex flex-col w-[967px] mt-[41px] px-12 gap-[22px]">
-        
+        <ProjectSaveDraftValidation />
         {/* HEADER */}
-        <div className="flex w-[917px] justify-between">
+        {/* <div className="flex w-[917px] justify-between">
           <div className="flex flex-col w-[314px] font-instrument font-bold text-[30px] text-[#101828]">
             <h1>Agile Project Planner</h1>
             <p className="font-normal text-[16px] text-[#4A5565]">
@@ -32,10 +33,10 @@ export default function ProjectPlanner({
               Save as Draft
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* STEPS */}
-        <div className="flex flex-col w-[917px] rounded-[10px] border py-[28px] border-[#DADCEO]">
+        {/* <div className="flex flex-col w-[917px] rounded-[10px] border py-[28px] border-[#DADCEO]">
           <div className="flex w-full justify-between px-4">
             
             {[1, 2, 3].map((step) => (
@@ -52,7 +53,7 @@ export default function ProjectPlanner({
             ))}
 
           </div>
-        </div>
+        </div> */}
 
         {/* FORM BODY */}
         <div className="py-6 rounded-[10px] w-[917px] border border-[#DADCEO] shadow-sm">

@@ -15,7 +15,7 @@ import range from "../image/range.png";
 
 import { saveDraftAction } from "../../redux/slice/survey/surveySlice";
 
-const SurveyConnectivity = ({ surveyId, setSurveyId }) => {
+const SurveyConnectivity = ({ surveyId, setSurveyId, handleSaveToDraft }) => {
     const dispatch = useDispatch();
 
     // if (!surveyForm || Object.keys(surveyForm).length === 0) {
@@ -201,11 +201,7 @@ const SurveyConnectivity = ({ surveyId, setSurveyId }) => {
 
     return (
         <div className="pey-12">
-            {/* <SurveyContent
-                title="survey recommendation"
-                survey={survey}
-            handleSaveToDraft={handleSaveToDraft}
-            /> */}
+            <SurveyContent title="survey recommendation" survey={survey} handleSaveToDraft={handleSaveToDraft}/>
 
             {/* <SurveyContent
                 title={title}

@@ -8,7 +8,21 @@ import ProjectPlanner from "./ProjectPlanner";
 import { createProjectAction, saveDraftAction } from "../redux/slice/project/projectSlice";
 
 const ProjectPlannerValidation = ({ onNext }) => {
+<<<<<<< HEAD
     const saveToDraft = useNavigate();
+=======
+    // const saveToDraft = useNavigate();
+    // const handleSaveToDraft = () => {
+    //     Swal.fire({
+    //     position: "top-end",
+    //     icon: "success",
+    //     title: "Your work has been saved",
+    //     showConfirmButton: false,
+    //     timer: 1500
+    //     });
+    //     saveToDraft('/dashboard/my-project');
+    // }
+>>>>>>> 312e976465945fab6535197eff0613843bc951a6
     const dispatch = useDispatch();
 
 
@@ -290,8 +304,14 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 onAddTeamMember={onAddTeamMember}
                 teamMembers={teamMembers}
                 onNext={onNext}
+<<<<<<< HEAD
                 handleSaveToDraft={handleSaveToDraft}
 
+=======
+
+                // handleSaveToDraft={handleSaveToDraft}
+                
+>>>>>>> 312e976465945fab6535197eff0613843bc951a6
             />
         </>
     );

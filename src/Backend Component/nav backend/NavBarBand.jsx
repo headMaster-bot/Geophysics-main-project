@@ -7,8 +7,8 @@ export default function NavBarBand() {
           <img src={logo} alt="brand" />
           <p className=""></p>
        </div>
-       <div className='md:w-[162px] w-[120px]'>
-         <p className="font-instrument max-w-[158px] font-semibold md:text-[18px] text-10 leading-[28.2px] tracking-[-0.44px] text-[#101828]">
+       <div className=''>
+         <p className="font-instrument font-semibold md:text-[18px] text-10 leading-[28.2px] tracking-[-0.44px] text-[#101828]">
             GeoSurvey Planner
          </p>
        </div>

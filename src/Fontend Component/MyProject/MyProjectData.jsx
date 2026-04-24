@@ -80,6 +80,7 @@ export default function MyProjectData() {
   //     linking: '/dashboard/project/3'
   //   }
   // ]
+// <<<<<<< HEAD
   // const projectData = (profile?.message?.survey || []).map((project) => ({
   //   id: project._id,   // ✅ MUST BE REAL ID
   //   title: project.title,
@@ -126,6 +127,24 @@ export default function MyProjectData() {
       console.log("Error fetching draft:", err);
     }
   };
+// =======
+ const projectData = (profile?.message?.survey || []).map((project) => ({
+  id: project._id,   // ✅ MUST BE REAL ID
+  title: project.title,
+  status: project.status,
+  action: project.status,
+  timeStamp: project.createdAt,
+  objective: project.objective,
+  Content: project.description,
+  buttonContent: "Open Project",
+  // linking: `/dashboard/survey/${project._id}`,
+  linking: `/dashboard/survey/${project._id}/1`,
+}));
+  
+  const handlePath = (path) => {
+    navigate(path)
+  }
+// >>>>>>> 312e976465945fab6535197eff0613843bc951a6
 
   return (
     <div>
