@@ -10,6 +10,7 @@ const initialState = {
     drafts: [],
     completes: [],
     surveys: [],
+    surveyss: [],
     survey: null,
     success: false,
     successMessage: null,
@@ -288,7 +289,7 @@ export const saveDraftAction = createAsyncThunk(
         }
     }
 );
-// fetch all drafts action
+// fetch all status action
 export const fetchDraftsAction = createAsyncThunk(
     "survey/fetchDrafts",
     async (_, { rejectWithValue, getState }) => {
@@ -300,7 +301,7 @@ export const fetchDraftsAction = createAsyncThunk(
                 },
             };
             const { data } = await axios.get(
-                `${baseUrl}/surveys/gets-draft?status=draft`,
+                `${baseUrl}/surveys/gets-status?status=draft`,
                 config
             );
 
@@ -376,12 +377,14 @@ export const fetchCompleteAction = createAsyncThunk(
     async (_, { rejectWithValue, getState }) => {
         try {
             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            console.log(token, "kkkkkkkk");
+
             const config = {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             };
-            console.log(`${baseUrl}/surveys/gets-draft?status=completed`, "Completed");
+            console.log("URL:", `${baseUrl}/surveys/gets-draft?status=completed`, "hhhfffcook");
 
             const { data } = await axios.get(
                 `${baseUrl}/surveys/gets-draft?status=completed`,
@@ -389,6 +392,37 @@ export const fetchCompleteAction = createAsyncThunk(
             );
 
             console.log(data, "complete");
+
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || error.message
+            );
+        }
+    }
+);
+
+//both draft and complete
+export const fetchSurveyByStatusAction = createAsyncThunk(
+    "survey/fetchByStatus",
+    async (statuses, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.token;
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            const query = statuses.join(",");
+
+            const { data } = await axios.get(
+                axios.get(`${baseUrl}/surveys?status=${query}`),
+                config
+            );
+            console.log(data, "yesnnnnnn");
 
 
             return data;
@@ -621,19 +655,37 @@ const surveySlice = createSlice({
             state.error = action.payload?.message;
         });
 
-        // complete survey action
+        // complete button survey action
         builder.addCase(fetchCompleteAction.pending, (state) => {
             state.loading = true;
         })
         builder.addCase(fetchCompleteAction.fulfilled, (state, action) => {
             state.loading = false;
             state.completes = action.payload;
+
         })
         builder.addCase(fetchCompleteAction.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
         });
 
+
+        // both
+
+        builder.addCase(fetchSurveyByStatusAction.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+
+        builder.addCase(fetchSurveyByStatusAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.surveys = action.payload || [];
+        });
+
+        builder.addCase(fetchSurveyByStatusAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
 
 
         // Reset error and success
