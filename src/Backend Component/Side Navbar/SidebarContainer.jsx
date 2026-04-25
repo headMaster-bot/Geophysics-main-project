@@ -45,7 +45,11 @@ export default function SidebarContainer() {
     if (menuName === "survey recommendation") navigate("/dashboard/survey");
     // if (menuName === "project planner") navigate("/dashboard/project/1");
     if (menuName === "project planner")
+
       navigate("/dashboard/project");
+
+      navigate("/dashboard/project/1");
+    
     if (menuName === "setting") navigate("/dashboard/setting");
     if (menuName === "logout") navigate("/", { replace: true });
 
@@ -58,14 +62,10 @@ export default function SidebarContainer() {
     // const currentStep = parseInt(step, 10) || 1;
     const goToNextProjectStep = (step = null) => {
       const nextStep = step !== null ? step : plannerStep + 1;
-      // navigate(`/dashboard/project/${nextStep}`);
+  
       navigate(`/dashboard/project/${id}/${nextStep}`);
     };
-    // const goToNextSurveyStep = (next = null) => {
-    //   const nextStep = next !== null ? next : plannerStep + 1;
-    //   // const nextStep = currentStep + 1;
-    //   navigate(`/dashboard/survey/${id}/${nextStep}`);
-    // };
+    
 
     return (
       <>
