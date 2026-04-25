@@ -155,37 +155,59 @@ const ProjectSaveDraftValidation = () => {
   //   }
   // };
 
-  const handleSaveToDraft = async () => {
-    try {
-      const payload = {
-        ...projectDetails,   // ✅ THIS is your form data
-        ...(projectId && { projectId }), // update if exists
-      };
+   const handleSaveToDraft = async () => {
+        console.log("Project Validation");
 
-      const res = await dispatch(saveDraftAction(payload)).unwrap();
+        try {
+            console.log("🧪 SURVEY FORM:", projectDetails);
 
-      console.log("Saved:", res);
+            if (!projectDetails) {
+                console.log("❌ surveyForm is missing");
+                return;
+            }
 
-      // backend returns { status, project }
-      const savedProject = res.project;
+            const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
+                if (value !== "" && value !== null && value !== undefined) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
 
-      if (savedProject?._id) {
-        setProjectId(savedProject._id);
-      }
+            const payload = {
+                ...cleanData,
+                status: "draft",
+                ...(projectId && { projectId }),
+            };
 
-      Swal.fire({
-        icon: "success",
-        title: "Draft Saved",
-        timer: 1200,
-        showConfirmButton: false,
-      });
+            console.log("📦 DRAFT PAYLOAD:", payload);
 
-      navigate("/dashboard/my-project");
+            const res = await dispatch(saveDraftAction(payload));
+            console.log(res, "created");
 
-    } catch (err) {
-      console.log("Save draft error:", err);
-    }
-  };
+            const draft = res.payload?.data || res.payload;
+
+            if (draft?._id) {
+                const newId = draft._id;
+
+                setProjectId(newId);
+
+                // 🔥 IMPORTANT: navigate WITH id
+                navigate(`/dashboard/my-project/${newId}`);
+                
+            }
+
+            Swal.fire({
+              icon: "success",
+                title: "Saved",
+                text: "Draft saved successfully",
+              }).then(() => {
+                navigate("/dashboard/my-project");
+              });
+
+        } catch (err) {
+            console.log("❌ SAVE DRAFT ERROR:", err);
+        }
+    };
 
   return (
     <>
