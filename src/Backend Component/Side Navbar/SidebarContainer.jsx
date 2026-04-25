@@ -45,10 +45,9 @@ export default function SidebarContainer() {
     if (menuName === "survey recommendation") navigate("/dashboard/survey");
     // if (menuName === "project planner") navigate("/dashboard/project/1");
     if (menuName === "project planner")
-
-      navigate("/dashboard/project");
-
-      navigate("/dashboard/project/1");
+if (menuName === "project planner") {
+  navigate("/dashboard/project/new/1");
+}
     
     if (menuName === "setting") navigate("/dashboard/setting");
     if (menuName === "logout") navigate("/", { replace: true });
