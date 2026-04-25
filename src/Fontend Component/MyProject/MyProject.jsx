@@ -15,7 +15,7 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
     const { drafts = [], loading } = useSelector((state) => state.surveys);
     const { projectDrafts = [], loadingProject } = useSelector((state) => state.projects);
     // complete project
-    const { completeProjects} = useSelector((state) => state.projects);
+    const { completeProjects=[]} = useSelector((state) => state.projects);
     const { surveys} = useSelector((state) => state.surveys);
 
     console.log(completeProjects, "Project");

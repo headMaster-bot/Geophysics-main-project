@@ -131,46 +131,47 @@ const ProjectPlannerValidation = ({ onNext }) => {
     // };
 
 
-    // const handleSaveToDraft = async () => {
-    //     console.log("Project Validation");
+    const handleSaveToDraft = async () => {
+        console.log("Project Validation");
 
-    //     try {
-    //         console.log("🧪 SURVEY FORM:", projectDetails);
+        try {
+            console.log("🧪 SURVEY FORM:", projectDetails);
 
-    //         if (!projectDetails) {
-    //             console.log("❌ surveyForm is missing");
-    //             return;
-    //         }
+            if (!projectDetails) {
+                console.log("❌ surveyForm is missing");
+                return;
+            }
 
-    //         const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
-    //             if (value !== "" && value !== null && value !== undefined) {
-    //                 acc[key] = value;
-    //             }
-    //             return acc;
-    //         }, {});
+            const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
+                if (value !== "" && value !== null && value !== undefined) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
 
-    //         const payload = {
-    //             ...cleanData,
-    //             status: "draft",
-    //             ...(projectId && { projectId }),
-    //         };
+            const payload = {
+                ...cleanData,
+                status: "draft",
+                ...(projectId && { projectId }),
+            };
 
-    //         console.log("📦 DRAFT PAYLOAD:", payload);
+            console.log("📦 DRAFT PAYLOAD:", payload);
 
-    //         const res = await dispatch(saveDraftAction(payload));
-    //         console.log(res, "created");
+            const res = await dispatch(saveDraftAction(payload));
+            console.log(res, "created");
 
-    //         const draft = res.payload?.data || res.payload;
+            const draft = res.payload?.data || res.payload;
 
-    //         if (draft?._id) {
-    //             const newId = draft._id;
+            if (draft?._id) {
+                const newId = draft._id;
 
-    //             setProjectId(newId);
+                setProjectId(newId);
 
-    //             // 🔥 IMPORTANT: navigate WITH id
-    //             navigate(`/dashboard/project/${newId}/2`);
-    //         }
+                // 🔥 IMPORTANT: navigate WITH id
+                navigate(`/dashboard/project/${newId}/2`);
+            }
 
+<<<<<<< HEAD
     //          Swal.fire({
     //                       icon: "success",
     //                         title: "Saved",
@@ -178,11 +179,20 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //                       }).then(() => {
     //                         navigate("/dashboard/my-project");
     //                       });
+=======
+            // Swal.fire({
+            //     icon: "success",
+            //     title: "Saved",
+            //     text: "Draft saved successfully",
+            //     timer: 1200,
+            //     showConfirmButton: false,
+            // });
+>>>>>>> 47babe5 (complete project and survey)
 
-    //     } catch (err) {
-    //         console.log("❌ SAVE DRAFT ERROR:", err);
-    //     }
-    // };
+        } catch (err) {
+            console.log("❌ SAVE DRAFT ERROR:", err);
+        }
+    };
 
     const onSelectTeamMember = (e) => {
         setSelectedTeamMemberId(e.target.value);
@@ -221,6 +231,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
     // ✅ Handle submit
     const HandleSubmit = (e) => {
+        
         e.preventDefault();
 
         let formError = {
@@ -355,12 +366,16 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 handleChange={handleChange}
                 projectDetails={projectDetails}
                 setProjectDetails={setProjectDetails}
+<<<<<<< HEAD
                 // handleSaveToDraft={handleSaveToDraft}
                  selectedTeamMemberId={selectedTeamMemberId}
                 onSelectTeamMember={onSelectTeamMember}
                 onAddTeamMember={onAddTeamMember}
                 teamMembers={teamMembers}
                 onNext={onNext}
+=======
+                handleSaveToDraft={handleSaveToDraft}
+>>>>>>> 47babe5 (complete project and survey)
             />
         </>
     );

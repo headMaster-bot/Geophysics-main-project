@@ -419,7 +419,7 @@ export const fetchSurveyByStatusAction = createAsyncThunk(
             const query = statuses.join(",");
 
             const { data } = await axios.get(
-                axios.get(`${baseUrl}/surveys?status=${query}`),
+                `${baseUrl}/surveys?status=${query}`,
                 config
             );
             console.log(data, "yesnnnnnn");
