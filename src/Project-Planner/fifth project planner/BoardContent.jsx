@@ -62,7 +62,7 @@ const BoardContent = ({ columns }) => {
                           </p>
 
                           {/* Description */}
-                          <p className="text-[#4A5565] text-[14px]">
+                          <p className="text-[#4A5565] flex- text-[14px]">
                             {item.details}
                           </p>
 
@@ -75,6 +75,9 @@ const BoardContent = ({ columns }) => {
                             <div className="w-[30px] h-[30px] rounded-full bg-[#585858] flex items-center justify-center text-white text-[12px]">
                               {item.aka}
                             </div>
+                          </div>
+                          <div className="w-full mt-4 ">
+                            <button className="border rounded-[10px] flex justify-center items-center w-full py-1"> add story</button>
                           </div>
                         </div>
                       )}

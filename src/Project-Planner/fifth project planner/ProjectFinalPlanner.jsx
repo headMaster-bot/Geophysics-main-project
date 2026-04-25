@@ -9,23 +9,49 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from 'sweetalert2'
 import { completeProjectAction } from "../../redux/slice/project/projectSlice";
-
+import { useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 
 const ProjectFinalPlanner = () => {
+   const pdfRef = useRef(); // ✅ FIXED REF
+
+   /** ✅ EXPORT PDF FUNCTION */
+  const exportToPDF = async () => {
+    const input = pdfRef.current;
+
+    const canvas = await html2canvas(input, {
+      scale: 2,
+      useCORS: true,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const imgWidth = 210;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+
+    pdf.save("project.pdf");
+  };
+
+
     // dispatch and selector
     const dispatch = useDispatch();
     const { id } = useParams();
     const { profile } = useSelector((state) => state.users);
     const backToDashboard = useNavigate()
-    const handleBackToDashboard = () => {
-        backToDashboard('/dashboard')
-    }
-
+    
     // logic
 
     const handleCompleteProject = async (id) => {
-        console.log("complete button");
+        // console.log("complete button");
+         console.log("project id:", id);
 
         try {
             const res = await dispatch(completeProjectAction(id)).unwrap();
@@ -34,6 +60,8 @@ const ProjectFinalPlanner = () => {
             Swal.fire({
                 icon: "success",
                 title: res.message || "Project completed",
+            }).then(() => {
+                backToDashboard("/dashboard");
             });
 
         } catch (err) {
@@ -52,7 +80,7 @@ const ProjectFinalPlanner = () => {
                     <h1 className="">Agile Project Planner</h1>
                     <p className="w-[72px] mt-[0.5px] font-instrument font-normal text-[16px] leading-[24px] tracking-[-0.31px] text-[#4A5565]">Step 1 of 3</p>
                 </div>
-                <div className="relative w-[158px] rounded-[10px] border-[2px] border-[#DADCEO] flex gap-2 items-center justify-center">
+                {/* <div className="relative w-[158px] rounded-[10px] border-[2px] border-[#DADCEO] flex gap-2 items-center justify-center">
                     <img src={save}
                         alt="save"
                         className="absolute left-[18px]  top-1/2 -translate-y-1/2 w-[16px] h-[16px]"
@@ -60,7 +88,7 @@ const ProjectFinalPlanner = () => {
                     <button className="ml-[44px] font-instrument font-medium text-[16px] leading-[24px] tracking-[-0.31px]">
                         Save as Draft
                     </button>
-                </div>
+                </div> */}
             </div>
             <div className="flex flex-col w-[917px] rounded-[10px] border py-[28px] text-[#FFFFFF] border-[#DADCEO] ">
                 <div className="flex items-center">
@@ -128,7 +156,7 @@ const ProjectFinalPlanner = () => {
                                     </div>
                                     <div className="flex items-center gap-4 my-2">
                                         <div>
-                                            <button className="flex py-[12px] px-8 items-center rounded-[4px] border bg-[#FFFFFF] border-[#EBEBEB] justify-center font-instrument font-normal text-[16px] leading-[24px] tracking-[-0.31px]">
+                                            <button   onClick={exportToPDF}  className="flex py-[12px] px-8 items-center rounded-[4px] border bg-[#FFFFFF] border-[#EBEBEB] justify-center font-instrument font-normal text-[16px] leading-[24px] tracking-[-0.31px]">
                                                 <img src={basil} alt="" className="pr-4" />
                                                 <p className="text-[#101828]">Export Plan (PDF)</p>
                                             </button>
@@ -146,7 +174,7 @@ const ProjectFinalPlanner = () => {
                             </div>
 
                         </div>
-                        <div className="bg-[#F9FAFB] rounded-[10px] border px-10 border-[#D8D8D8] my-6">
+                        <div ref={pdfRef} className="bg-[#F9FAFB] rounded-[10px] border px-10 border-[#D8D8D8] my-6">
                             <p className="text-[#101828] font-instrument font-semibold text-[18px] py-4 leading-[28px] tracking-[-0.44px]">Key Metrics</p>
                             <div className="w-[420px] flex gap-4 mx-sauto items-cxenter ">
                                 <div className="w-[315px] py-6 border-[#D8D8D8] rounded-[10px] px-12 border bg-[#F2F2F2] flex flex-col">
