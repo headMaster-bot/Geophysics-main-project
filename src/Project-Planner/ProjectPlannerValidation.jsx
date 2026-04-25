@@ -171,13 +171,13 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 navigate(`/dashboard/project/${newId}/2`);
             }
 
-            Swal.fire({
-                icon: "success",
-                title: "Saved",
-                text: "Draft saved successfully",
-                timer: 1200,
-                showConfirmButton: false,
-            });
+            // Swal.fire({
+            //     icon: "success",
+            //     title: "Saved",
+            //     text: "Draft saved successfully",
+            //     timer: 1200,
+            //     showConfirmButton: false,
+            // });
 
         } catch (err) {
             console.log("❌ SAVE DRAFT ERROR:", err);
