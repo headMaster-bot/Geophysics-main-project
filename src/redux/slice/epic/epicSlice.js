@@ -1,180 +1,77 @@
-const Epic = require("../../model/EPic/Epic");
-const Project = require("../../model/Project/Project");
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-// const createEpicCtrl = async (req, res) => {
-//     const { title, description, priority, project } = req.body
-//     try {
-//         const projectId = await Project.findById(req.params.id);
-//         if (!projectId) {
-//             res.json({
-//                 status: "Failed",
-//                 message: "Project not found",
-//             })
-//         }
-//         const titleExists = await Epic.findOne({ title });
-//         if (titleExists) {
-//             return res.json({
-//                 status: "failed",
-//                 message: "Epic already exists"
-//             })
-//         }
-//         const createEpic = await Epic.create({
-
-//             title,
-//             description,
-//             priority,
-//             project,
-//             user: req.userAuth
-//         });
-//         res.json({
-//             status: "Success",
-//             messsage: createEpic,
-//         })
-//     } catch (error) {
-//         res.json(error.message);
-//     }
-// }
-
-const createEpicCtrl = async (req, res) => {
-    const { title, description, priority, project } = req.body;
-
+// ================= CREATE EPIC =================
+export const createEpicAction = createAsyncThunk(
+  "epics/create",
+  async (data, { rejectWithValue }) => {
     try {
-        const projectExists = await Project.findById(project);
+      const res = await axios.post(
+        "http://localhost:5000/api/epics",
+        data
+      );
 
-        if (!projectExists) {
-            return res.status(404).json({
-                status: "failed",
-                message: "Project not found",
-            });
-        }
-
-        // Check if epic exists in THIS project
-        const titleExists = await Epic.findOne({
-            title,
-            project: projectExists._id,
-        });
-
-        if (titleExists) {
-            return res.status(400).json({
-                status: "failed",
-                message: "Epic already exists in this project",
-            });
-        }
-
-        const epic = await Epic.create({
-            title,
-            description,
-            priority,
-            project,// ✅ correct
-            user: req.userAuth,
-        });
-
-        res.status(201).json({
-            status: "success",
-            data: epic,
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            status: "failed",
-            message: error.message,
-        });
+      return res.data.data; // 👈 match backend
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
     }
-};
+  }
+);
 
-const getAllEpicsCtrl = async (req, res) => {
+// ================= FETCH EPICS =================
+export const fetchEpicsAction = createAsyncThunk(
+  "epics/fetch",
+  async (projectId, { rejectWithValue }) => {
     try {
-        const epics = await Epic.find().populate("stories");
-        return res.json({
-            status: "Success",
-            message: epics,
-        })
-    } catch (error) {
-        res.json(error.message)
+      const res = await axios.get(
+        `http://localhost:5000/api/epics/${projectId}`
+      );
+
+      return res.data.data; // 👈 match backend
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
     }
-}
+  }
+);
 
-// const Epic = require("../models/Epic");
+// ================= SLICE =================
+const epicSlice = createSlice({
+  name: "epics",
+  initialState: {
+    epics: [],
+    loading: false,
+    error: null,
+  },
+  reducers: {},
 
-// const getAllEpicsCtrl = async (req, res) => {
-//   try {
-//     const { projectId } = req.params;
+  extraReducers: (builder) => {
+    builder
+      // CREATE
+      .addCase(createEpicAction.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createEpicAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.epics.push(action.payload);
+      })
+      .addCase(createEpicAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-//     if (!projectId) {
-//       return res.status(400).json({
-//         status: "Error",
-//         message: "projectId is required",
-//       });
-//     }
+      // FETCH
+      .addCase(fetchEpicsAction.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchEpicsAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.epics = action.payload;
+      })
+      .addCase(fetchEpicsAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
+});
 
-//     // const epics = await Epic.find({ project: projectId })
-//     const epics = await Epic.find({}).populate("stories")
-//     //   .populate("project");
-
-//     return res.status(200).json({
-//       status: "Success",
-//       data: epics,
-//     });
-
-//   } catch (error) {
-//     return res.status(500).json({
-//       status: "Error",
-//       message: error.message,
-//     });
-//   }
-// };
-
-// single-epic
-const getEpicCtrl = async (req, res) => {
-    try {
-        const epic = await Epic.findById(req.params.id);
-        if (!epic) {
-            return res.json({
-                status: "Failed",
-                message: "Epic not found",
-            })
-        }
-        return res.json({
-            status: "Success",
-            message: epic,
-        })
-    } catch (error) {
-        res.json(error.message)
-    }
-}
-
-// ✅ getEpicsByProject (Main Fix)
-// const getEpicsByProjectCtrl = async (req, res) => {
-//     try {
-//         const { projectId } = req.params;
-
-//         const epics = await Epic.find({ project: projectId })
-//             .populate("project") // for project name
-//             //.populate("stories"); // optional, if you have a reference
-
-//         if (!epics || epics.length === 0) {
-//             return res.json({
-//                 status: "Failed",
-//                 message: "No epics found for this project",
-//             });
-//         }
-
-//         return res.json({
-//             status: "Success",
-//             message: epics,
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             status: "Error",
-//             message: error.message,
-//         });
-//     }
-// };
-
-
-module.exports = {
-    createEpicCtrl,
-    getAllEpicsCtrl,
-    getEpicCtrl,
-    // getEpicsByProjectCtrl,
-}
+export default epicSlice.reducer;
