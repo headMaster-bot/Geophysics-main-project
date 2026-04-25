@@ -25,7 +25,7 @@ function App() {
         {/* Dashboard + Sidebar Container */}
         <Route path="/dashboard/*" element={ <Sidebar /> } />
         {/* Redirect old planner URL to new dashboard project route */}
-        <Route path="/dashboard/planner/1" element={<Navigate to="/dashboard/project/1" replace />} />
+        <Route path="/dashboard/planner/2" element={<Navigate to="/dashboard/project/2" replace />} />
         {/* <Route path="/dashboard/my-projects" element={<Navigate to="/dashboard/my-project" replace />} /> */}
 
         {/* Redirect unknown paths */}

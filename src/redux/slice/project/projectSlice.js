@@ -209,8 +209,8 @@ export const fetchProjectDraftAction = createAsyncThunk(
                     Authorization: `Bearer ${token}`,
                 },
             };
-            console.log("CALLING:", `${baseUrl}/projects/draft/${projectId}`);
-            console.log("PROJECT ID:", projectId);
+            // console.log("CALLING:", `${baseUrl}/projects/draft/${projectId}`);
+            // console.log("PROJECT ID:", projectId);
             const { data } = await axios.get(
                 `${baseUrl}/projects/draft/${projectId}`,
                 config
@@ -218,6 +218,36 @@ export const fetchProjectDraftAction = createAsyncThunk(
             console.log(data, "get draft");
 
             return data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data);
+        }
+    }
+);
+
+// project complete button
+export const completeProjectAction = createAsyncThunk(
+    "project/complete",
+    async (projectId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            console.log("completed button", `${baseUrl}/projects/completed/${projectId}`);
+
+            const { data } = await axios.put(
+                `${baseUrl}/projects/completed/${projectId}`,
+                {},
+                config
+            );
+            console.log(data, "projectslice");
+            
+
+            return data;
+
         } catch (err) {
             return rejectWithValue(err.response?.data);
         }
@@ -401,6 +431,21 @@ const projectSlice = createSlice({
         })
         builder.addCase(fetchProjectDraftAction.rejected, (state, action) => {
             state.loading = false;
+            state.error = action.payload?.message;
+        });
+        // complete project
+        builder.addCase(completeProjectAction.pending, (state) => {
+            state.loadingProject = true;
+        });
+
+        builder.addCase(completeProjectAction.fulfilled, (state, action) => {
+            state.loadingProject = false;
+            state.project = action.payload.project;
+            state.success = true;
+        });
+
+        builder.addCase(completeProjectAction.rejected, (state, action) => {
+            state.loadingProject = false;
             state.error = action.payload?.message;
         });
 

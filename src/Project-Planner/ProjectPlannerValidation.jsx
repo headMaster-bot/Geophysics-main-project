@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import baseUrl from "../utils/baseUrl";
 import { useNavigate } from 'react-router-dom'
@@ -21,6 +21,8 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //     saveToDraft('/dashboard/my-project');
     // }
     const dispatch = useDispatch();
+    const { project } = useSelector((state) => state.projects);
+
 
 
     const [availableUsers, setAvailableUsers] = useState([]);
@@ -51,6 +53,18 @@ const ProjectPlannerValidation = ({ onNext }) => {
         endDate: "",
     });
     const [projectId, setProjectId] = useState(null);
+
+
+    useEffect(() => {
+        if (project) {
+            setProjectDetails({
+                projectName: project.projectName || "",
+                description: project.description || "",
+                startDate: project.startDate?.split("T")[0] || "",
+                endDate: project.endDate?.split("T")[0] || "",
+            });
+        }
+    }, [project]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -108,52 +122,54 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //     }
     // };
 
-    // const handleSaveToDraft = async () => {
-    //     try {
-    //         console.log("🧪 SURVEY FORM:", projectDetails);
+    const handleSaveToDraft = async () => {
+        console.log("Project Validation");
 
-    //         if (!projectDetails) {
-    //             console.log("❌ surveyForm is missing");
-    //             return;
-    //         }
+        try {
+            console.log("🧪 SURVEY FORM:", projectDetails);
 
-    //         const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
-    //             if (value !== "" && value !== null && value !== undefined) {
-    //                 acc[key] = value;
-    //             }
-    //             return acc;
-    //         }, {});
+            if (!projectDetails) {
+                console.log("❌ surveyForm is missing");
+                return;
+            }
 
-    //         const payload = {
-    //             ...cleanData,
-    //             status: "draft",
-    //             ...(projectId && { projectId }),
-    //         };
+            const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
+                if (value !== "" && value !== null && value !== undefined) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
 
-    //         console.log("📦 DRAFT PAYLOAD:", payload);
+            const payload = {
+                ...cleanData,
+                status: "draft",
+                ...(projectId && { projectId }),
+            };
 
-    //         const res = await dispatch(saveDraftAction(payload));
-    //         console.log(res, "created");
-            
+            console.log("📦 DRAFT PAYLOAD:", payload);
 
-    //         const draft = res.payload?.data || res.payload;
+            const res = await dispatch(saveDraftAction(payload));
+            console.log(res, "created");
 
-    //         if (draft?._id) {
-    //             setProjectId(draft._id);
-    //         }
 
-    //         Swal.fire({
-    //             icon: "success",
-    //             title: "Saved",
-    //             text: "Draft saved successfully",
-    //             timer: 1200,
-    //             showConfirmButton: false,
-    //         });
+            const draft = res.payload?.data || res.payload;
 
-    //     } catch (err) {
-    //         console.log("❌ SAVE DRAFT ERROR:", err);
-    //     }
-    // };
+            if (draft?._id) {
+                setProjectId(draft._id);
+            }
+
+            Swal.fire({
+                icon: "success",
+                title: "Saved",
+                text: "Draft saved successfully",
+                timer: 1200,
+                showConfirmButton: false,
+            });
+
+        } catch (err) {
+            console.log("❌ SAVE DRAFT ERROR:", err);
+        }
+    };
 
     const onSelectTeamMember = (e) => {
         setSelectedTeamMemberId(e.target.value);
@@ -175,7 +191,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
     };
 
     // ✅ Handle input change
-    const handleVarChange = (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
 
         setProjectDetails((prev) => ({
@@ -292,11 +308,11 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
     return (
         <>
-            <ProjectPlanner
+            {/* <ProjectPlanner
                 error={error}
                 HandleSubmit={HandleSubmit}
-                HandleChange={handleVarChange}
-                userInput={projectDetails}
+                handleChange={handleChange}
+                projectDetails={projectDetails}
                 availableUsers={availableUsers}
                 selectedTeamMemberId={selectedTeamMemberId}
                 onSelectTeamMember={onSelectTeamMember}
@@ -308,6 +324,14 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
                 // handleSaveToDraft={handleSaveToDraft}
                 
+            /> */}
+            <ProjectPlanner
+                error={error}
+                HandleSubmit={HandleSubmit}
+                handleChange={handleChange}
+                projectDetails={projectDetails}
+                setProjectDetails={setProjectDetails}
+                handleSaveToDraft={handleSaveToDraft}
             />
         </>
     );

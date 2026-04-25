@@ -3,21 +3,25 @@ import plusIcon from "../Backend Component/image/Plus.jpg";
 import left from "../Backend Component/image/ChevronLeft.png";
 import right from "../Backend Component/image/ChevronRight.png";
 import ProjectSaveDraftValidation from "./ProjectSaveDraftValidation";
+import ProjectSaveDraftContent from "./ProjectSaveDraftContent";
 
 export default function ProjectPlanner({
   error = {},
-  HandleSubmit = () => {},
-  HandleChange = () => {},
-  userInput = { projectName: "" },
-  onSelectTeamMember = () => {},
-  onAddTeamMember = () => {},
-  onNext = () => {},
-  handleSaveToDraft = () => {},
+  HandleSubmit = () => { },
+  handleChange = () => { },
+  projectDetails = { projectName: "" },
+  onSelectTeamMember = () => { },
+  onAddTeamMember = () => { },
+  onNext = () => { },
+  handleSaveToDraft = () => { },
 }) {
   return (
     <form onSubmit={HandleSubmit}>
       <div className="flex flex-col w-[967px] mt-[41px] px-12 gap-[22px]">
-        <ProjectSaveDraftValidation />
+        {/* <ProjectSaveDraftValidation /> */}
+        <ProjectSaveDraftContent
+          handleSaveToDraft={handleSaveToDraft}
+        />
         {/* HEADER */}
         {/* <div className="flex w-[917px] justify-between">
           <div className="flex flex-col w-[314px] font-instrument font-bold text-[30px] text-[#101828]">
@@ -72,8 +76,8 @@ export default function ProjectPlanner({
               <input
                 name="projectName"
                 className="w-full rounded-[10px] border border-[#DADCEO] py-4 px-[14px]"
-                value={userInput?.projectName ?? ""}
-                onChange={HandleChange}
+                value={projectDetails?.projectName ?? ""}
+                onChange={handleChange}
                 placeholder="e.g, Lagos Survey Execution"
               />
 
@@ -90,8 +94,8 @@ export default function ProjectPlanner({
                 name="description"
                 className="w-full px-[14px] py-3 rounded-[10px] border border-[#DADCEO] resize-none outline-none"
                 placeholder="Provide a brief description of the project..."
-                value={userInput?.description ?? ""}
-                onChange={HandleChange}
+                value={projectDetails?.description ?? ""}
+                onChange={handleChange}
               />
 
               <p className="text-red-600">{error.description}</p>
@@ -99,7 +103,7 @@ export default function ProjectPlanner({
 
             {/* DATES */}
             <div className="grid grid-cols-2 gap-[16px]">
-              
+
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-medium">
                   Start Date <span className="text-red-500">*</span>
@@ -109,8 +113,8 @@ export default function ProjectPlanner({
                   type="date"
                   name="startDate"
                   className="py-4 rounded-[10px] border border-[#DADCEO] px-2"
-                  value={userInput?.startDate ?? ""}
-                  onChange={HandleChange}
+                  value={projectDetails?.startDate ?? ""}
+                  onChange={handleChange}
                 />
 
                 <p className="text-red-600 text-sm">{error.startDate}</p>
@@ -125,8 +129,8 @@ export default function ProjectPlanner({
                   type="date"
                   name="endDate"
                   className="py-4 rounded-[10px] border border-[#DADCEO] px-2"
-                  value={userInput?.endDate ?? ""}
-                  onChange={HandleChange}
+                  value={projectDetails?.endDate ?? ""}
+                  onChange={handleChange}
                 />
 
                 <p className="text-red-600 text-sm">{error.endDate}</p>
@@ -143,7 +147,7 @@ export default function ProjectPlanner({
                 name="sprint"
                 className="w-full py-4 rounded-[10px] border border-[#DADCEO] px-[16px]"
                 placeholder="14"
-                onChange={HandleChange}
+                onChange={handleChange}
               />
             </div>
 
@@ -183,7 +187,7 @@ export default function ProjectPlanner({
 
         {/* BUTTONS */}
         <div className="flex justify-between w-[917px] py-8">
-          
+
           <button
             type="button"
             onClick={() => window.history.back()}

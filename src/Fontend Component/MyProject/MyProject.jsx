@@ -4,14 +4,59 @@ import { fetchDraftsAction } from "../../redux/slice/survey/surveySlice";
 import { useEffect } from "react";
 import { fetchProjectDraftsAction } from "../../redux/slice/project/projectSlice";
 
-export default function MyProject({ projectData, handleOpenDraft, handleStatusUpdate, surveyId, handleOpenPlannerDraft }) {
+export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyId, handleOpenPlannerDraft }) {
     // dispatch
     const dispatch = useDispatch();
     // const { profile } = useSelector(state => state?.users)
     // const surveydata = profile?.message?.survey;
-    const { drafts, loading } = useSelector((state) => state.surveys);
-    const { projectDrafts, loadingProject } = useSelector((state) => state?.projects);
+    // const { drafts, loading } = useSelector((state) => state.surveys);
+    // const { projectDrafts, loadingProject } = useSelector((state) => state?.projects);
+
+    const { drafts = [], loading } = useSelector((state) => state.surveys);
+    const { projectDrafts = [], loadingProject } = useSelector((state) => state.projects);
     console.log(projectDrafts, "projectsssssssss");
+    console.log(drafts?.message, "CHECK THIS");
+    console.log(drafts?.data, "CHECK THIS");
+
+    // combineData
+    const combinedData = [
+        ...(drafts || []),
+        ...(projectDrafts || [])
+    ];
+    // mappping combine data
+    const projectData = combinedData.map((item) => ({
+        id: item._id,
+        type: item.type,
+        status: item.status,
+
+        title:
+            item.type === "survey"
+                ? item.surveyName
+                : item.projectName,
+
+        description:
+            item.description ||
+            item.survey?.description ||
+            "No description available",
+        objective:
+            item.type === "survey"
+                ? item.surveyObjective
+                : "No",
+
+        date:
+            item.type === "survey"
+                ? item.targetCompletionDate
+                : item.startDate,
+
+        buttonText:
+            item.type === "survey"
+                ? item.status === "draft"
+                    ? "Open Survey Draft"
+                    : "Open Survey"
+                : item.status === "draft"
+                    ? "Open Project Draft"
+                    : "Open Project",
+    }));
     // console.log(drafts, "survey");
     useEffect(() => {
         dispatch(fetchProjectDraftsAction());
@@ -66,7 +111,7 @@ export default function MyProject({ projectData, handleOpenDraft, handleStatusUp
                 <p>Showing 4 of 4 projects</p>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            {/* <div className="grid grid-cols-3 gap-4">
                 {loading ? (
                     <p>Loading drafts...</p>
                 ) : (
@@ -107,33 +152,53 @@ export default function MyProject({ projectData, handleOpenDraft, handleStatusUp
                     ))
                 )}
             
-            </div>
-            <h1>Project Drafts</h1>
-             <div className="grid grid-cols-3 gap-4">
+            </div> */}
+
+            {/* <h1>Project Drafts</h1> */}
+            <div className="grid grid-cols-3 gap-4">
                 {loading ? (
                     <p>Loading drafts...</p>
                 ) : (
-                    (projectDrafts || []).map((project) => (
-                        <div className="rounded-[10px] border px-[24px] pt-[24px] pb-[14px] border-[#DADCE0] font-instrument" key={project.id}>
+                    (projectData || []).map((item) => (
+                        <div className="rounded-[10px] border px-[24px] pt-[24px] pb-[14px] border-[#DADCE0] font-instrument" key={item.id}>
                             <div className="flex justify-between items-center">
-                                <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">Project</div>
-                                <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">{project.status}</div>
+                                <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">{item.type}</div>
+                                <div className="bg-[#ECECEC] rounded-[16px] py-2 px-3">{item.status}</div>
 
                             </div>
                             <div>
                                 <div className="flex flex-col capitalize pt-4 pb-[24px]" >
-                                    <p className="font-instrument font-semibold text-[18px] leading-[28px] tracking-[-0.44px] text-[#101828]">{project.projectName}</p>
+                                    <p className="font-instrument font-semibold text-[18px] leading-[28px] tracking-[-0.44px] text-[#101828]">{item.title}</p>
                                 </div>
 
                                 <div className="flex flex-col gap-4">
-                                    <p className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">{project.description}</p>
-                                    {/* <div className="flex justify-between">
-                                        <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Objective</div>
-                                        <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{project.surveyObjective}</div>
-                                    </div> */}
+                                    <p className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">{item.description}</p>
+                                    <div className="flex justify-between">
+                                        {/* <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Objective</div>
+                                        <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{item.objective}</div> */}
+                                        {item.type === "survey" && (
+                                            <div className="flex justify-between">
+                                                <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">
+                                                    Objective
+                                                </div>
+                                                <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">
+                                                    {item.objective}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                    </div>
                                     <div className="flex justify-between">
                                         <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Created</div>
-                                        <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{project.startDate}</div>
+                                        <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">
+                                            {new Date(item.date).toLocaleString("en-GB", {
+                                                day: "numeric",
+                                                month: "short",
+                                                year: "numeric",
+                                                // hour: "2-digit",
+                                                // minute: "2-digit",
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -141,7 +206,8 @@ export default function MyProject({ projectData, handleOpenDraft, handleStatusUp
                             <div className="flex mt-[24px] items-center">
                                 <button
                                     // onClick={ handlePath}
-                                    onClick={() => handleOpenPlannerDraft(project._id)}
+                                    // onClick={() => handleOpenPlannerDraft(item._id)}
+                                    onClick={() => handleOpenDraft(item.id, item.type, item.status)}
                                     className="w-full py-[7px] flex justify-center items-center bg-[#585858] rounded-[10px] font-instrument text-[#ffffff]">
                                     Open Project
                                 </button>
