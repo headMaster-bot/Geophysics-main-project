@@ -6,6 +6,14 @@ import { PROJECT_STATUS } from '../../utils/status';
 const DashboardCard = ({ Cards }) => {
     const dispatch = useDispatch();
     const { profile, loading, error } = useSelector((state) => state.users);
+    const surveyCounts = profile?.surveys
+    // const projectCounts = profile?.surveys
+
+    // combine data
+    const combinedData = [
+        ...(surveyCounts || []),
+        // ...(projectCounts || [])
+    ];
 
     // Fetch user profile on component mount
     useEffect(() => {
@@ -41,35 +49,35 @@ const DashboardCard = ({ Cards }) => {
 
     const projectCounts = calculateProjectCounts();
     // Create cards data from user profile
-   const userCards = profile?.message ? [
-  {
-    id: 1,
-    cardTitle: "Total Projects",
-    numb: projectCounts.totalProjects,
-    image: Cards?.[0]?.image || ""
-  },
-  {
-    id: 2,
-    cardTitle: "Active",
-    numb:
-      profile?.message?.projects?.filter(
-        (p) => p?.status === PROJECT_STATUS.ACTIVE
-      ).length || 0,
-    image: Cards?.[1]?.image || ""
-  },
-  {
-    id: 3,
-    cardTitle: "Completed",
-    numb: projectCounts.completedProjects,
-    image: Cards?.[2]?.image || ""
-  },
-  {
-    id: 4,
-    cardTitle: "Drafts",
-    numb: projectCounts.draftProjects,
-    image: Cards?.[3]?.image || ""
-  }
-] : Cards || [];
+    const userCards = profile?.message ? [
+        {
+            id: 1,
+            cardTitle: "Total Projects",
+            numb: projectCounts.totalProjects,
+            image: Cards?.[0]?.image || ""
+        },
+        {
+            id: 2,
+            cardTitle: "Active",
+            numb:
+                profile?.message?.projects?.filter(
+                    (p) => p?.status === "active"
+                ).length || 0,
+            image: Cards?.[1]?.image || ""
+        },
+        {
+            id: 3,
+            cardTitle: "Completed",
+            numb: projectCounts.completedProjects,
+            image: Cards?.[2]?.image || ""
+        },
+        {
+            id: 4,
+            cardTitle: "Drafts",
+            numb: projectCounts.draftProjects,
+            image: Cards?.[3]?.image || ""
+        }
+    ] : Cards || [];
 
     if (loading) {
         return (

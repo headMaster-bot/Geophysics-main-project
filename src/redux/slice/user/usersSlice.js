@@ -67,43 +67,43 @@ export const userProfileUpdateAction = createAsyncThunk(
         try {
             const state = getState();
             console.log("Full Redux state:", state);
-            
+
             // Get token and userId from Redux state
             const userInfo = state?.users?.userAuth?.userInfo;
             const token = userInfo?.message?.token;
             const userId = userInfo?.message?.id;
-            
+
             console.log("User Info:", userInfo);
             console.log("Token:", token);
             console.log("UserId:", userId);
             console.log("Payload:", payload);
-            
+
             if (!userInfo) {
                 return rejectWithValue("User not logged in. Please login first.");
             }
-            
+
             if (!token) {
                 return rejectWithValue("Authentication token not found. Please login again.");
             }
-            
+
             if (!userId) {
                 return rejectWithValue("User ID not found. Please login again.");
             }
-            
+
             const config = {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
             };
-            
+
             // Make PUT request to update user profile
             const res = await axios.put(
                 `${baseUrl}/users/update/profile/${userId}`,
                 payload,
                 config
             );
-            
+
             console.log("API Response:", res.data);
             return res.data;
         } catch (error) {
@@ -138,6 +138,59 @@ export const getUserProfileAction = createAsyncThunk("users/profile",
             console.log(error);
 
             return rejectWithValue(error?.response?.data);
+        }
+    }
+);
+
+// delete account
+export const deleteAccountAction = createAsyncThunk(
+    "users/delete-account",
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            //   const token = getState().users.userAuth?.token;
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            const { data } = await axios.delete(
+                `${baseUrl}/users/delete/account`,
+                config
+            );
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+// delete projects
+export const deleteAllProjectsAction = createAsyncThunk(
+    "projects/delete-all",
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            //   const token = getState().users.userAuth?.token;
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            const { data } = await axios.delete(
+                `${baseUrl}/users/delete/all-projects`,
+                config
+            );
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
         }
     }
 );
@@ -228,6 +281,40 @@ const usersSlice = createSlice({
             state.error = action.payload || action.error.message;
             state.loading = false;
             state.success = false;
+        });
+
+        // delete account
+
+        builder.addCase(deleteAccountAction.pending, (state) => {
+            state.loading = true;
+        })
+        builder.addCase(deleteAccountAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.success = true;
+        })
+        builder.addCase(deleteAccountAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
+        // delete projects
+
+        builder.addCase(deleteAllProjectsAction.pending, (state) => {
+            state.loadingDeleteAll = true;
+            state.successDeleteAll = false;
+            state.errorDeleteAll = null;
+        })
+        builder.addCase(deleteAllProjectsAction.fulfilled, (state) => {
+            state.loadingDeleteAll = false;
+            state.successDeleteAll = true;
+            state.projects = [];
+            state.completeProjects = [];
+            state.projectDrafts = [];
+            state.stories = [];
+            state.sprints = [];
+        })
+        builder.addCase(deleteAllProjectsAction.rejected, (state, action) => {
+            state.loadingDeleteAll = false;
+            state.errorDeleteAll = action.payload;
         });
     }
 })

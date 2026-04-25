@@ -2,8 +2,8 @@ import { useDispatch, useSelector } from "react-redux";
 import search from "../../Backend Component/image/Search.png"
 import { fetchCompleteAction, fetchDraftsAction, fetchSurveyByStatusAction } from "../../redux/slice/survey/surveySlice";
 import { useEffect } from "react";
-import { fetchProjectCompletesAction, fetchProjectDraftsAction } from "../../redux/slice/project/projectSlice";
-
+import { fetchDraftAndCompleteAction, fetchProjectDraftsAction } from "../../redux/slice/project/projectSlice";
+// fetchProjectCompletesAction
 export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyId, handleOpenPlannerDraft }) {
     // dispatch
     const dispatch = useDispatch();
@@ -15,8 +15,8 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
     const { drafts = [], loading } = useSelector((state) => state.surveys);
     const { projectDrafts = [], loadingProject } = useSelector((state) => state.projects);
     // complete project
-    const { completeProjects=[]} = useSelector((state) => state.projects);
-    const { surveys} = useSelector((state) => state.surveys);
+    const { completeProjects = [] } = useSelector((state) => state.projects);
+    const { surveys } = useSelector((state) => state.surveys);
 
     console.log(completeProjects, "Project");
     console.log(surveys, "Survey");
@@ -24,8 +24,8 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
 
     // combineData
     const combinedData = [
-        ...(drafts || []),
-        ...(projectDrafts || [])
+        ...(surveys || []),
+        ...(completeProjects || [])
     ];
     // mappping combine data
     const projectData = combinedData.map((item) => ({
@@ -62,12 +62,20 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
                     : "Open Project",
     }));
     // console.log(drafts, "survey");
+    // useEffect(() => {
+    //     dispatch(fetchProjectDraftsAction());
+    // }, [dispatch]);
+
+    // useEffect(() => {
+    //     dispatch(fetchDraftsAction());
+    // }, [dispatch]);
+
     useEffect(() => {
-        dispatch(fetchProjectDraftsAction());
+        dispatch(fetchDraftAndCompleteAction(["draft", "completed"]));
     }, [dispatch]);
 
     useEffect(() => {
-        dispatch(fetchDraftsAction());
+        dispatch(fetchSurveyByStatusAction(["draft", "completed"]));
     }, [dispatch]);
     return (
         <div className=" flex-1 flex flex-col w-[967px] gap-[8px] mx-auto pb-4">

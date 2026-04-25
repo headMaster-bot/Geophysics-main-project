@@ -289,7 +289,7 @@ export const saveDraftAction = createAsyncThunk(
         }
     }
 );
-// fetch all status action
+// fetch all draft status action
 export const fetchDraftsAction = createAsyncThunk(
     "survey/fetchDrafts",
     async (_, { rejectWithValue, getState }) => {
@@ -408,7 +408,9 @@ export const fetchSurveyByStatusAction = createAsyncThunk(
     "survey/fetchByStatus",
     async (statuses, { rejectWithValue, getState }) => {
         try {
-            const token = getState()?.users?.userAuth?.userInfo?.token;
+            // const token = getState()?.users?.userAuth?.userInfo?.token;
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+
 
             const config = {
                 headers: {
