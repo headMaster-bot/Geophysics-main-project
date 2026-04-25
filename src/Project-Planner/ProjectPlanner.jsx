@@ -13,15 +13,15 @@ export default function ProjectPlanner({
   onSelectTeamMember = () => { },
   onAddTeamMember = () => { },
   onNext = () => { },
-  handleSaveToDraft = () => { },
+  // handleSaveToDraft = () => { },
 }) {
   return (
     <form onSubmit={HandleSubmit}>
       <div className="flex flex-col w-[967px] mt-[41px] px-12 gap-[22px]">
-        {/* <ProjectSaveDraftValidation /> */}
-        <ProjectSaveDraftContent
+        <ProjectSaveDraftValidation />
+        {/* <ProjectSaveDraftContent
           handleSaveToDraft={handleSaveToDraft}
-        />
+        /> */}
         {/* HEADER */}
         {/* <div className="flex w-[917px] justify-between">
           <div className="flex flex-col w-[314px] font-instrument font-bold text-[30px] text-[#101828]">
