@@ -8,6 +8,7 @@ const initialState = {
     loading: false,
     error: null,
     drafts: [],
+    completes: [],
     surveys: [],
     survey: null,
     success: false,
@@ -287,7 +288,7 @@ export const saveDraftAction = createAsyncThunk(
         }
     }
 );
-// fetch draft action
+// fetch all drafts action
 export const fetchDraftsAction = createAsyncThunk(
     "survey/fetchDrafts",
     async (_, { rejectWithValue, getState }) => {
@@ -365,6 +366,36 @@ export const completeSurveyAction = createAsyncThunk(
 
         } catch (err) {
             return rejectWithValue(err.response?.data);
+        }
+    }
+);
+
+// fetch all complete survey action
+export const fetchCompleteAction = createAsyncThunk(
+    "survey/fetchComplete",
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            console.log(`${baseUrl}/surveys/gets-draft?status=completed`, "Completed");
+
+            const { data } = await axios.get(
+                `${baseUrl}/surveys/gets-draft?status=completed`,
+                config
+            );
+
+            console.log(data, "complete");
+
+
+            return data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || error.message
+            );
         }
     }
 );
@@ -589,6 +620,20 @@ const surveySlice = createSlice({
             state.loadingSurvey = false;
             state.error = action.payload?.message;
         });
+
+        // complete survey action
+        builder.addCase(fetchCompleteAction.pending, (state) => {
+            state.loading = true;
+        })
+        builder.addCase(fetchCompleteAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.completes = action.payload;
+        })
+        builder.addCase(fetchCompleteAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
+
 
 
         // Reset error and success

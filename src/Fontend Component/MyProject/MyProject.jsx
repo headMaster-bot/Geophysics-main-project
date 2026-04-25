@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import search from "../../Backend Component/image/Search.png"
-import { fetchDraftsAction } from "../../redux/slice/survey/surveySlice";
+import { fetchCompleteAction, fetchDraftsAction } from "../../redux/slice/survey/surveySlice";
 import { useEffect } from "react";
-import { fetchProjectDraftsAction } from "../../redux/slice/project/projectSlice";
+import { fetchProjectCompletesAction, fetchProjectDraftsAction } from "../../redux/slice/project/projectSlice";
 
 export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyId, handleOpenPlannerDraft }) {
     // dispatch
@@ -14,9 +14,13 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
 
     const { drafts = [], loading } = useSelector((state) => state.surveys);
     const { projectDrafts = [], loadingProject } = useSelector((state) => state.projects);
-    console.log(projectDrafts, "projectsssssssss");
-    console.log(drafts?.message, "CHECK THIS");
-    console.log(drafts?.data, "CHECK THIS");
+    // complete project
+    const { completeProjects = [] } = useSelector((state) => state.projects);
+    const { completes = []} = useSelector((state) => state.surveys);
+
+    console.log(completeProjects, "Project");
+    console.log(completes, "Survey");
+    // console.log(drafts?.data, "CHECK THIS");
 
     // combineData
     const combinedData = [
