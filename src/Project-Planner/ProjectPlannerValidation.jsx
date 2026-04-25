@@ -2,70 +2,58 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import baseUrl from "../utils/baseUrl";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
 import ProjectPlanner from "./ProjectPlanner";
-import { createProjectAction, saveDraftAction } from "../redux/slice/project/projectSlice";
+import {
+  createProjectAction,
+  saveDraftAction,
+} from "../redux/slice/project/projectSlice";
 
 const ProjectPlannerValidation = ({ onNext }) => {
-    const navigate = useNavigate();
-    // const navigate = useNavigate();
-    // const handleSaveToDraft = () => {
-    //     Swal.fire({
-    //     position: "top-end",
-    //     icon: "success",
-    //     title: "Your work has been saved",
-    //     showConfirmButton: false,
-    //     timer: 1500
-    //     });
-    //     navigate('/dashboard/my-project');
-    // }
-    const dispatch = useDispatch();
-    const { project } = useSelector((state) => state.projects);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  const { project } = useSelector((state) => state.projects);
 
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [selectedTeamMemberId, setSelectedTeamMemberId] = useState("");
 
-    const [availableUsers, setAvailableUsers] = useState([]);
-    const [teamMembers, setTeamMembers] = useState([]);
-    const [selectedTeamMemberId, setSelectedTeamMemberId] = useState("");
-    // const handleSaveToDraft = () => {
-    //     Swal.fire({
-    //     position: "top-end",
-    //     icon: "success",
-    //     title: "Your work has been saved",
-    //     showConfirmButton: false,
-    //     timer: 1500
-    //     });
-    //     navigate('/dashboard/my-project');
-    // }
+  const [projectDetails, setProjectDetails] = useState({
+    projectName: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+  });
 
-    const [projectDetails, setProjectDetails] = useState({
-        projectName: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-    });
+  const [error, setError] = useState({
+    projectName: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+  });
 
-    const [error, setError] = useState({
-        projectName: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-    });
-    const [projectId, setProjectId] = useState(null);
+  const [projectId, setProjectId] = useState(null);
 
+  /** ✅ Load existing project */
+  useEffect(() => {
+    if (project) {
+      setProjectDetails({
+        projectName: project.projectName || "",
+        description: project.description || "",
+        startDate: project.startDate?.split("T")[0] || "",
+        endDate: project.endDate?.split("T")[0] || "",
+      });
 
-    useEffect(() => {
-        if (project) {
-            setProjectDetails({
-                projectName: project.projectName || "",
-                description: project.description || "",
-                startDate: project.startDate?.split("T")[0] || "",
-                endDate: project.endDate?.split("T")[0] || "",
-            });
-        }
-    }, [project]);
+      if (project?._id) {
+        setProjectId(project._id);
+      }
+    }
+  }, [project]);
 
+<<<<<<< HEAD
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -196,32 +184,46 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
     const onSelectTeamMember = (e) => {
         setSelectedTeamMemberId(e.target.value);
+=======
+  /** ✅ Fetch users */
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data } = await axios.get(`${baseUrl}/users`);
+        setAvailableUsers(data?.message || []);
+      } catch (error) {
+        console.error("Error fetching users", error);
+      }
+>>>>>>> 457aa92 (updating collection)
     };
 
-    const onAddTeamMember = () => {
-        if (!selectedTeamMemberId) return;
+    fetchUsers();
+  }, []);
 
-        const member = availableUsers.find(
-            (user) => user._id === selectedTeamMemberId
-        );
+  /** ✅ Handle input */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-        if (member && !teamMembers.some((m) => m._id === member._id)) {
-            setTeamMembers((prev) => [...prev, member]);
-        }
+    setProjectDetails((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-        // ✅ Move to next step when button is clicked
-        if (onNext) onNext(2);
-    };
+    setError((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
 
-    // ✅ Handle input change
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+  /** ✅ Team member logic */
+  const onSelectTeamMember = (e) => {
+    setSelectedTeamMemberId(e.target.value);
+  };
 
-        setProjectDetails((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+  const onAddTeamMember = () => {
+    if (!selectedTeamMemberId) return;
 
+<<<<<<< HEAD
         // clear error while typing
         setError((prev) => ({
             ...prev,
@@ -377,7 +379,152 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 handleSaveToDraft={handleSaveToDraft}
             />
         </>
+=======
+    const member = availableUsers.find(
+      (user) => user._id === selectedTeamMemberId
+>>>>>>> 457aa92 (updating collection)
     );
+
+    if (member && !teamMembers.some((m) => m._id === member._id)) {
+      setTeamMembers((prev) => [...prev, member]);
+    }
+
+    if (onNext) onNext(2);
+  };
+
+  /** ✅ SAVE DRAFT (FIXED) */
+  const handleSaveToDraft = async () => {
+    try {
+      const cleanData = Object.entries(projectDetails).reduce(
+        (acc, [key, value]) => {
+          if (value !== "" && value !== null && value !== undefined) {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {}
+      );
+
+      const payload = {
+        ...cleanData,
+        status: "draft",
+        ...(projectId && { projectId }),
+      };
+
+      const res = await dispatch(saveDraftAction(payload));
+      const draft = res.payload?.data || res.payload;
+
+      if (draft?._id) {
+        const newId = draft._id;
+        setProjectId(newId);
+
+        Swal.fire({
+          icon: "success",
+          title: "Saved",
+          text: "Draft saved successfully",
+          timer: 1200,
+          showConfirmButton: false,
+        }).then(() => {
+          // ✅ SINGLE navigation (correct)
+          navigate(`/dashboard/project/${newId}/1`);
+        });
+      }
+    } catch (err) {
+      console.log("❌ SAVE DRAFT ERROR:", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to save draft",
+      });
+    }
+  };
+
+  /** ✅ SUBMIT PROJECT */
+  const HandleSubmit = (e) => {
+    e.preventDefault();
+
+    let formError = {
+      projectName: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+    };
+
+    if (!projectDetails.projectName?.trim()) {
+      formError.projectName = "Project name is required";
+    }
+
+    if (!projectDetails.description?.trim()) {
+      formError.description = "Description is required";
+    }
+
+    if (!projectDetails.startDate) {
+      formError.startDate = "Start date is required";
+    }
+
+    if (!projectDetails.endDate) {
+      formError.endDate = "End date is required";
+    }
+
+    setError(formError);
+
+    if (
+      formError.projectName ||
+      formError.description ||
+      formError.startDate ||
+      formError.endDate
+    ) {
+      Swal.fire({
+        title: "Validation Error",
+        text: "Please fill in all required fields",
+        icon: "error",
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to submit this project?",
+      icon: "warning",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(
+          createProjectAction({ ...projectDetails, teamMembers })
+        ).then((res) => {
+          const createdProject = res.payload?.data || res.payload;
+          const newProjectId = createdProject?._id;
+
+          if (!newProjectId) return;
+
+          Swal.fire({
+            title: "Submitted!",
+            text: "Project created successfully.",
+            icon: "success",
+          }).then(() => {
+            navigate(`/dashboard/project/${newProjectId}/3`);
+          });
+        });
+      }
+    });
+  };
+
+  return (
+    <ProjectPlanner
+      error={error}
+      HandleSubmit={HandleSubmit}
+      handleChange={handleChange}
+      projectDetails={projectDetails}
+      setProjectDetails={setProjectDetails}
+      handleSaveToDraft={handleSaveToDraft}
+      selectedTeamMemberId={selectedTeamMemberId}
+      onSelectTeamMember={onSelectTeamMember}
+      onAddTeamMember={onAddTeamMember}
+      teamMembers={teamMembers}
+      onNext={onNext}
+    />
+  );
 };
 
 export default ProjectPlannerValidation;

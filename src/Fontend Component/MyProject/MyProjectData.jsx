@@ -55,7 +55,7 @@ export default function MyProjectData() {
 
     title:
       item.type === "survey"
-        ? item.surveyName
+        ? item.surveyName  
         : item.projectName,
 
     status: item.status,
