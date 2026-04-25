@@ -18,10 +18,11 @@ import {
   resetErrAction,
 } from "../redux/slice/globalActions/globalActions";
 import { getUserProfileAction } from "../redux/slice/user/usersSlice";
+import { useParams } from "react-router-dom";
 
 const SecondSurveyConnectivity = ({ onNext }) => {
   const dispatch = useDispatch();
-
+  const { id } = useParams();
   const profile = useSelector((state) => state.users.profile);
   const profileLoading = useSelector((state) => state.users.loading);
 
@@ -57,6 +58,14 @@ const SecondSurveyConnectivity = ({ onNext }) => {
   }, [dispatch]);
 
   // Get LATEST survey (VERY IMPORTANT FIX)
+  // const surveys = profile?.message?.survey;
+  // const currentSurvey =
+  //   Array.isArray(surveys) && surveys.length > 0
+  //     ? surveys[surveys.length - 1]
+  //     : null;
+
+  // const surveyId = currentSurvey?._id;
+
   const surveys = profile?.message?.survey;
   const currentSurvey =
     Array.isArray(surveys) && surveys.length > 0
@@ -122,9 +131,13 @@ const SecondSurveyConnectivity = ({ onNext }) => {
     const lat = Number(form.latitude);
     const lng = Number(form.longitude);
 
+    // const surveyData = {
+    //   latitude: lat,
+    //   longitude: lng,
+    // };
     const surveyData = {
-      latitude: lat,
-      longitude: lng,
+      latitude: Number(form.latitude),
+      longitude: Number(form.longitude),
     };
 
     console.log("STEP 2 PAYLOAD:", {
@@ -149,10 +162,11 @@ const SecondSurveyConnectivity = ({ onNext }) => {
         dispatch(resetSuccessAction());
 
         // IMPORTANT: Pass data forward (THIS FIXES YOUR STEP 3 ISSUE)
-        onNext?.({
-          latitude: lat,
-          longitude: lng,
-        });
+        // onNext?.({
+        //   latitude: lat,
+        //   longitude: lng,
+        // });
+        onNext?.(); // go to step 3
       });
     }
   }, [success, successMessage, dispatch, onNext, form]);

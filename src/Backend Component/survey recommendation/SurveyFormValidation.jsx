@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import SurveyForm from "./SurveyForm";
-
 import {
   createSurveyAction,
   fetchDraftAction,
@@ -32,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 
 const SurveyFormValidation = ({ onNext }) => {
   const dispatch = useDispatch();
-  const navToMyProject = useNavigate();
+  const navigate = useNavigate();
 
   const { id } = useParams();
 
@@ -155,7 +154,7 @@ const SurveyFormValidation = ({ onNext }) => {
         title: "Saved",
         text: "Draft saved successfully",
       }).then(() => {
-        navToMyProject("/dashboard/my-project");
+        navigate("/dashboard/my-project");
       });
     } catch (err) {
       Swal.fire({
@@ -191,8 +190,35 @@ const SurveyFormValidation = ({ onNext }) => {
     }
 
     try {
-      await dispatch(createSurveyAction(surveyForm)).unwrap();
+      const res = await dispatch(createSurveyAction(surveyForm)).unwrap();
+      console.log(res, "Survey");
+
+      // const createdSurvey = res.payload?.data || res.payload;
+
+      // const newSurveyId = res?.surveyCreated?._id;
+
+      // console.log("🔥 NEW PROJECT ID:", newSurveyId);
+
+      // if (!newSurveyId) {
+      //   console.log("❌ No ID returned");
+      //   return;
+      // }
+
+      console.log("Survey RESPONSE:", res);
+
+      // const newSurveyId = res?.surveyCreated?._id;
+      const newSurveyId =
+        res?.surveyCreated?._id ||
+        res?.data?.surveyCreated?._id ||
+        res?._id;
+
+      if (!newSurveyId) {
+        console.log("❌ No ID returned", res);
+        return;
+      }
       setSubmitted(true);
+      navigate(`/dashboard/survey/${newSurveyId}/1`);
+
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -216,6 +242,8 @@ const SurveyFormValidation = ({ onNext }) => {
         await dispatch(getUserProfileAction());
 
         if (onNext) onNext(2);
+        // navigate(`/dashboard/survey/${newSurveyId}/2`);
+
       });
     }
   }, [submitted, success, successMessage, dispatch, onNext]);
@@ -252,7 +280,7 @@ const SurveyFormValidation = ({ onNext }) => {
           error={error}
           handleSurveyChange={handleSurveyChange}
           handleSurveySubmit={handleSurveySubmit}
-          handleSurveyObjective={handleSurveyObjective} 
+          handleSurveyObjective={handleSurveyObjective}
         />
 
       </div>

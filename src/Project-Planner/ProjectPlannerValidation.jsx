@@ -8,8 +8,8 @@ import ProjectPlanner from "./ProjectPlanner";
 import { createProjectAction, saveDraftAction } from "../redux/slice/project/projectSlice";
 
 const ProjectPlannerValidation = ({ onNext }) => {
-    const saveToDraft = useNavigate();
-    // const saveToDraft = useNavigate();
+    const navigate = useNavigate();
+    // const navigate = useNavigate();
     // const handleSaveToDraft = () => {
     //     Swal.fire({
     //     position: "top-end",
@@ -18,7 +18,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //     showConfirmButton: false,
     //     timer: 1500
     //     });
-    //     saveToDraft('/dashboard/my-project');
+    //     navigate('/dashboard/my-project');
     // }
     const dispatch = useDispatch();
     const { project } = useSelector((state) => state.projects);
@@ -36,7 +36,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //     showConfirmButton: false,
     //     timer: 1500
     //     });
-    //     saveToDraft('/dashboard/my-project');
+    //     navigate('/dashboard/my-project');
     // }
 
     const [projectDetails, setProjectDetails] = useState({
@@ -81,32 +81,40 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
     // const [project, setProject] = useState(null)
 
-    // const handleSaveToDraft = async (projectId) => {
-    //     console.log("working");
-    //     if (
-    //         !projectDetails.projectName &&
-    //         !projectDetails.description &&
-    //         !projectDetails.startDate &&
-    //         !projectDetails.endDate
-    //     ) {
-    //         console.log("❌ Empty draft — still allowed or block if you want");
-    //         // OPTIONAL: return here if you truly want to block empty drafts
-    //         // return;
-    //     }
+    // const handleSaveToDraft = async () => {
+    //     console.log("Project Validation");
 
     //     try {
+    //         console.log("🧪 SURVEY FORM:", projectDetails);
+
+    //         if (!projectDetails) {
+    //             console.log("❌ surveyForm is missing");
+    //             return;
+    //         }
+
+    //         const cleanData = Object.entries(projectDetails).reduce((acc, [key, value]) => {
+    //             if (value !== "" && value !== null && value !== undefined) {
+    //                 acc[key] = value;
+    //             }
+    //             return acc;
+    //         }, {});
+
     //         const payload = {
-    //             ...projectDetails,
-    //             ...(projectId && { projectId }), // only include if exists
+    //             ...cleanData,
+    //             status: "draft",
+    //             ...(projectId && { projectId }),
     //         };
 
-    //         const res = await dispatch(saveDraftAction(payload)).unwrap();
+    //         console.log("📦 DRAFT PAYLOAD:", payload);
 
-    //         console.log("Saved:", res);
+    //         const res = await dispatch(saveDraftAction(payload));
+    //         console.log(res, "created");
 
-    //         // 🔥 THIS LINE MAKES EVERYTHING WORK
-    //         if (res?.project?._id) {
-    //             setProject(res.project._id);
+
+    //         const draft = res.payload?.data || res.payload;
+
+    //         if (draft?._id) {
+    //             setProjectId(draft._id);
     //         }
 
     //         Swal.fire({
@@ -118,9 +126,10 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //         });
 
     //     } catch (err) {
-    //         console.log("❌ ERROR:", err);
+    //         console.log("❌ SAVE DRAFT ERROR:", err);
     //     }
     // };
+
 
     const handleSaveToDraft = async () => {
         console.log("Project Validation");
@@ -151,11 +160,15 @@ const ProjectPlannerValidation = ({ onNext }) => {
             const res = await dispatch(saveDraftAction(payload));
             console.log(res, "created");
 
-
             const draft = res.payload?.data || res.payload;
 
             if (draft?._id) {
-                setProjectId(draft._id);
+                const newId = draft._id;
+
+                setProjectId(newId);
+
+                // 🔥 IMPORTANT: navigate WITH id
+                navigate(`/dashboard/project/${newId}/2`);
             }
 
             Swal.fire({
@@ -272,12 +285,23 @@ const ProjectPlannerValidation = ({ onNext }) => {
                     console.log('Project creation response:', res);
                     // Check if action was fulfilled (payload exists) or rejected (error exists)
                     if (res.meta?.requestStatus === 'fulfilled' || (res.payload && !res.error)) {
+                        const createdProject = res.payload?.data || res.payload;
+
+                        const newProjectId = createdProject?._id;
+
+                        console.log("🔥 NEW PROJECT ID:", newProjectId);
+
+                        if (!newProjectId) {
+                            console.log("❌ No ID returned");
+                            return;
+                        }
                         swalWithBootstrapButtons.fire({
                             title: "Submitted!",
                             text: "Your project has been created successfully.",
                             icon: "success"
                         }).then(() => {
-                            if (onNext) onNext(3);
+                            // if (onNext) onNext(3);
+                            navigate(`/dashboard/project/${newProjectId}/3`);
                         });
                     } else {
                         swalWithBootstrapButtons.fire({

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, useParams, Navigate } from "react-router-dom";
 import SidebarConnectivity from "./SidebarConnectivity";
 import DashboardContainer from "../asset/DashboardContainer";
 import Setting from "../../Setting/Setting";
@@ -7,16 +7,14 @@ import Setting from "../../Setting/Setting";
 // Survey Components
 import SurveyContainer from "../survey recommendation/SurveyContainer";
 
-// Project Components
+// Project Planner Components
 import MyProjectData from "../../Fontend Component/MyProject/MyProjectData";
-
-// Planner Components
 import ProjectPlannerValidation from "../../Project-Planner/ProjectPlannerValidation";
 import SecondProjectPlannerValidation from "../../Project-Planner/SecondProjectPlannerValidation";
 import FifthProjectPlannerValidation from "../../Project-Planner/fifth project planner/FifthProjectPlannerValidation";
 import ProjectFinalPlanner from "../../Project-Planner/fifth project planner/ProjectFinalPlanner";
 
-// Icons
+// FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 
@@ -26,12 +24,10 @@ export default function SidebarContainer() {
 
   const navigate = useNavigate();
   const location = useLocation();
-
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   useEffect(() => {
     const path = location.pathname;
-
     if (path.startsWith("/dashboard/survey")) setActiveMenu("survey recommendation");
     else if (path.startsWith("/dashboard/my-project")) setActiveMenu("my project");
     else if (path.startsWith("/dashboard/project")) setActiveMenu("project planner");
@@ -43,36 +39,48 @@ export default function SidebarContainer() {
     setActiveMenu(menuName);
     setIsSidebarOpen(false);
 
+    // Navigate to initial URL for menu
     if (menuName === "dashboard") navigate("/dashboard");
     if (menuName === "my project") navigate("/dashboard/my-project");
-
-    // 🔴 FIXED: must include ID + step
-    if (menuName === "survey recommendation")
-      navigate("/dashboard/survey/1");
-
+    if (menuName === "survey recommendation") navigate("/dashboard/survey");
+    // if (menuName === "project planner") navigate("/dashboard/project/1");
     if (menuName === "project planner")
-      navigate("/dashboard/project/1");
-
+      navigate("/dashboard/project");
     if (menuName === "setting") navigate("/dashboard/setting");
     if (menuName === "logout") navigate("/", { replace: true });
+
   };
 
   /*** PROJECT PLANNER FLOW ***/
   const ProjectPlannerFlow = () => {
-    const { step } = useParams();
-    const plannerStep = parseInt(step, 5) || 1;
-
+    const { id, step } = useParams();
+    const plannerStep = parseInt(step, 10) || 1;
+    // const currentStep = parseInt(step, 10) || 1;
     const goToNextProjectStep = (step = null) => {
       const nextStep = step !== null ? step : plannerStep + 1;
-      navigate(`/dashboard/project/${nextStep}`);
+      // navigate(`/dashboard/project/${nextStep}`);
+      navigate(`/dashboard/project/${id}/${nextStep}`);
     };
+    // const goToNextSurveyStep = (next = null) => {
+    //   const nextStep = next !== null ? next : plannerStep + 1;
+    //   // const nextStep = currentStep + 1;
+    //   navigate(`/dashboard/survey/${id}/${nextStep}`);
+    // };
 
     return (
       <>
-        {plannerStep === 1 && <ProjectPlannerValidation onNext={goToNextProjectStep} />}
-        {plannerStep === 2 && <SecondProjectPlannerValidation onNext={goToNextProjectStep} />}
-        {plannerStep === 3 && <FifthProjectPlannerValidation onNext={goToNextProjectStep} />}
-        {plannerStep === 4 && <ProjectFinalPlanner onNext={goToNextProjectStep} />}
+        {plannerStep === 1 && (
+          <ProjectPlannerValidation onNext={goToNextProjectStep} />
+        )}
+        {plannerStep === 2 && (
+          <SecondProjectPlannerValidation onNext={goToNextProjectStep} />
+        )}
+        {plannerStep === 3 && (
+          <FifthProjectPlannerValidation onNext={goToNextProjectStep} />
+        )}
+        {plannerStep === 4 && (
+          <ProjectFinalPlanner onNext={goToNextProjectStep} />
+        )}
       </>
     );
   };
@@ -86,7 +94,7 @@ export default function SidebarContainer() {
 
       {/* Main Content */}
       <div className="flex-1 relative">
-        {/* Mobile icon */}
+        {/* Mobile menu icon */}
         <div className="md:hidden pl-4 border-b">
           <FontAwesomeIcon
             icon={faBars}
@@ -99,20 +107,21 @@ export default function SidebarContainer() {
           <Route path="" element={<DashboardContainer />} />
           <Route path="my-project" element={<MyProjectData />} />
           <Route path="setting" element={<Setting />} />
-
-          {/* 🔴 FIXED ROUTES */}
-          <Route path="survey/:step" element={<SurveyContainer />} />
-
+          <Route path="survey" element={<SurveyContainer />} />
+          {/* <Route path="survey" element={<Navigate to="/dashboard/survey/new/1" replace />} /> */}
+          <Route path="survey/:id/:step" element={<SurveyContainer />} />
           <Route path="project" element={<ProjectPlannerFlow />} />
-          <Route path="project/:step" element={<ProjectPlannerFlow />} />
-
+          <Route path="project/:id/:step" element={<ProjectPlannerFlow />} />
           <Route path="*" element={<DashboardContainer />} />
         </Routes>
 
-        {/* Mobile sidebar */}
+        {/* Mobile sidebar overlay */}
         {isSidebarOpen && (
           <>
-            <div onClick={toggleSidebar} className="fixed inset-0 bg-black/40 z-40" />
+            <div
+              onClick={toggleSidebar}
+              className="fixed inset-0 bg-black/40 z-40"
+            />
             <div className="fixed top-0 left-0 bottom-0 w-64 bg-[#EBEBEB] z-50">
               <FontAwesomeIcon icon={faXmark} onClick={toggleSidebar} />
               <SidebarConnectivity

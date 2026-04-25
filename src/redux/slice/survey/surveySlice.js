@@ -339,6 +339,36 @@ export const fetchDraftAction = createAsyncThunk(
     }
 );
 
+// Survey complete button
+export const completeSurveyAction = createAsyncThunk(
+    "survey/complete",
+    async (surveyId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            console.log("completed button", `${baseUrl}/surveys/completed/${surveyId}`);
+
+            const { data } = await axios.put(
+                `${baseUrl}/surveys/completed/${surveyId}`,
+                {},
+                config
+            );
+            console.log(data, "Surveyslice");
+
+
+            return data;
+
+        } catch (err) {
+            return rejectWithValue(err.response?.data);
+        }
+    }
+);
+
 const surveySlice = createSlice({
     name: "surveys",
     initialState,
@@ -541,6 +571,22 @@ const surveySlice = createSlice({
         })
         builder.addCase(fetchDraftAction.rejected, (state, action) => {
             state.loading = false;
+            state.error = action.payload?.message;
+        });
+
+        // complete Survey
+        builder.addCase(completeSurveyAction.pending, (state) => {
+            state.loadingSurvey = true;
+        });
+
+        builder.addCase(completeSurveyAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.survey = action.payload.survey;
+            state.success = true;
+        });
+
+        builder.addCase(completeSurveyAction.rejected, (state, action) => {
+            state.loadingSurvey = false;
             state.error = action.payload?.message;
         });
 

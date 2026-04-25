@@ -1,5 +1,8 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import Swal from "sweetalert2";
+import { completeSurveyAction } from "../../redux/slice/survey/surveySlice";
+import { useParams } from "react-router-dom";
 
 const SixSurveyContent = ({
   selectedMethod,
@@ -12,7 +15,10 @@ const SixSurveyContent = ({
   onNext,
   handleNavigateToProjectPlan
 }) => {
-const { recommendedMethods } = useSelector((state) => state.surveys);
+  // dispatch
+  const dispatch = useDispatch();
+  const { recommendedMethods } = useSelector((state) => state.surveys);
+  const {id} = useParams()
 
   console.log("=== SixSurveyContent Debug ===");
   console.log("Props methods:", methods);
@@ -40,8 +46,8 @@ const { recommendedMethods } = useSelector((state) => state.surveys);
     normalizedPropsMethods.length > 0
       ? normalizedPropsMethods
       : normalizedRecommended.length > 0
-      ? normalizedRecommended
-      : defaultMethods;
+        ? normalizedRecommended
+        : defaultMethods;
 
   // ✅ SAFE PRIMARY METHOD
   const primary =
@@ -57,6 +63,26 @@ const { recommendedMethods } = useSelector((state) => state.surveys);
   //     onNext(primary?.name); // always safe
   //   }
   // };
+
+  const handleCompleteProject = async (id) => {
+    console.log("complete button");
+
+    try {
+      const res = await dispatch(completeSurveyAction(id)).unwrap();
+      console.log(res, "response complete");
+
+      Swal.fire({
+        icon: "success",
+        title: res.message || "Project completed",
+      });
+
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: err?.message || "Failed",
+      });
+    }
+  };
 
   return (
     <div className="w-[967px] my-6 mx-auto border border-[#D7D7D7] rounded-[10px]">
@@ -123,7 +149,8 @@ const { recommendedMethods } = useSelector((state) => state.surveys);
 
           <button
             type="button"
-            onClick={() => handleNavigateToProjectPlan()}
+            // onClick={() => handleNavigateToProjectPlan()}
+            onClick={() => handleCompleteProject(id)}
             className="py-[10px] px-[15px] rounded-[10px] bg-[#364153] text-white"
           >
             Create Project Planner

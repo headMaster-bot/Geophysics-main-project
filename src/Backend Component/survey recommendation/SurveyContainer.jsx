@@ -9,7 +9,7 @@ import FifthSurveyConnectivity from '../Fifth recommendation/FifthSurveyConnecti
 import SixSurveyConnectivity from '../Six survey recommendation/SixSurveyConnectivity';
 
 export default function SurveyContainer() {
-  const { step } = useParams();
+  const { id, step } = useParams();
   const surveyStep = Number(step) || 1;
   const navigate = useNavigate();
 
@@ -22,7 +22,7 @@ export default function SurveyContainer() {
     if (surveyStep >= 6) {
       navigate('/dashboard/survey/1');
     } else {
-      navigate(`/dashboard/survey/${surveyStep + 1}`);
+      navigate(`/dashboard/survey/${id}/${surveyStep + 1}`);
     }
   };
 
