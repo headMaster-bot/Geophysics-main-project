@@ -171,7 +171,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 navigate(`/dashboard/project/${newId}/2`);
             }
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
     //          Swal.fire({
     //                       icon: "success",
     //                         title: "Saved",
@@ -179,7 +179,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
     //                       }).then(() => {
     //                         navigate("/dashboard/my-project");
     //                       });
-=======
+// =======
             // Swal.fire({
             //     icon: "success",
             //     title: "Saved",
@@ -187,7 +187,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
             //     timer: 1200,
             //     showConfirmButton: false,
             // });
->>>>>>> 47babe5 (complete project and survey)
+// >>>>>>> 47babe5 (complete project and survey)
 
         } catch (err) {
             console.log("❌ SAVE DRAFT ERROR:", err);
@@ -366,16 +366,15 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 handleChange={handleChange}
                 projectDetails={projectDetails}
                 setProjectDetails={setProjectDetails}
-<<<<<<< HEAD
+// <<<<<<< HEAD
                 // handleSaveToDraft={handleSaveToDraft}
                  selectedTeamMemberId={selectedTeamMemberId}
                 onSelectTeamMember={onSelectTeamMember}
                 onAddTeamMember={onAddTeamMember}
                 teamMembers={teamMembers}
                 onNext={onNext}
-=======
+// =======
                 handleSaveToDraft={handleSaveToDraft}
->>>>>>> 47babe5 (complete project and survey)
             />
         </>
     );
