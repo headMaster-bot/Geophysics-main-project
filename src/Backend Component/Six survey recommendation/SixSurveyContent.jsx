@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import { completeSurveyAction } from "../../redux/slice/survey/surveySlice";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const SixSurveyContent = ({
   selectedMethod,
@@ -17,8 +17,10 @@ const SixSurveyContent = ({
 }) => {
   // dispatch
   const dispatch = useDispatch();
+  const navigate = useNavigate()
+
   const { recommendedMethods } = useSelector((state) => state.surveys);
-  const {id} = useParams()
+  const { id } = useParams()
 
   console.log("=== SixSurveyContent Debug ===");
   console.log("Props methods:", methods);
@@ -66,7 +68,6 @@ const SixSurveyContent = ({
 
   const handleCompleteProject = async (id) => {
     console.log("complete button");
-
     try {
       const res = await dispatch(completeSurveyAction(id)).unwrap();
       console.log(res, "response complete");
@@ -75,6 +76,7 @@ const SixSurveyContent = ({
         icon: "success",
         title: res.message || "Project completed",
       });
+      navigate("/dashboard/project/new/1")
 
     } catch (err) {
       Swal.fire({
