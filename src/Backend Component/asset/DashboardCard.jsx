@@ -15,8 +15,8 @@ const DashboardCard = ({ Cards }) => {
     const projects = profile?.message?.projects || [];
     const surveys = profile?.message?.survey || []; // 👈 FIXED (use correct path)
 
-    console.log("PROJECT STATUSES:", profile?.message?.projects?.map(p => p.status));
-    console.log("SURVEY STATUSES:", profile?.message?.survey?.map(s => s.status));
+    console.log("PROJECT STATUSES:", projects);
+    console.log("SURVEY STATUSES:", surveys);
 
     // NORMALIZER (fixes mismatch between project + survey)
     const normalize = (item, type) => ({

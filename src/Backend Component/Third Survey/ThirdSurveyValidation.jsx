@@ -88,6 +88,8 @@ export default function ThirdSurveyValidation({ secondSurveyData, onNext }) {
 
     // ✅ Submit handler
     const handleSubmitSurvey = (e) => {
+        console.log(userInput, "Surveycccc");
+        
         e.preventDefault();
 
         let newErrors = {
