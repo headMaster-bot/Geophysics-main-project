@@ -1,121 +1,127 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUserProfileAction } from '../../redux/slice/user/usersSlice';
-import { PROJECT_STATUS } from '../../utils/status';
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserProfileAction } from "../../redux/slice/user/usersSlice";
+import { PROJECT_STATUS } from "../../utils/status";
 
 const DashboardCard = ({ Cards }) => {
     const dispatch = useDispatch();
     const { profile, loading, error } = useSelector((state) => state.users);
-    const surveyCounts = profile?.surveys
-    // const projectCounts = profile?.surveys
 
-    // combine data
-    const combinedData = [
-        ...(surveyCounts || []),
-        // ...(projectCounts || [])
-    ];
-
-    // Fetch user profile on component mount
     useEffect(() => {
         dispatch(getUserProfileAction());
     }, [dispatch]);
 
-    // const activeProjects = projects.filter(
-    //     (p) => p.status === PROJECT_STATUS.ACTIVE
-    // ).length;
+    // SAFE DATA EXTRACTION
+    const projects = profile?.message?.projects || [];
+    const surveys = profile?.message?.survey || []; // 👈 FIXED (use correct path)
 
-    // Calculate project counts from profile
-    const calculateProjectCounts = () => {
-        if (!profile?.message?.projects || profile.message.projects.length === 0) {
-            return {
-                totalProjects: 0,
-                completedProjects: 0,
-                draftProjects: 0,
-                isActive: false
-            };
-        }
+    console.log("PROJECT STATUSES:", profile?.message?.projects?.map(p => p.status));
+    console.log("SURVEY STATUSES:", profile?.message?.survey?.map(s => s.status));
 
-        const projects = profile.message.projects;
-        const completedProjects = projects.filter(p => p.status === 'completed').length;
-        const draftProjects = projects.filter(p => p.status === 'draft').length;
+    // NORMALIZER (fixes mismatch between project + survey)
+    const normalize = (item, type) => ({
+        type,
+        status: (
+            item?.status ||
+            item?.surveyStatus ||
+            item?.state ||
+            ""
+        ).toLowerCase(),
+    });
 
-        return {
-            totalProjects: projects.length,
-            completedProjects,
-            draftProjects,
-            isActive: profile.message.isActive || false
-        };
-    };
+    const combinedData = useMemo(() => {
+        return [
+            ...projects.map(p => normalize(p, "project")),
+            ...surveys.map(s => normalize(s, "survey")),
+        ];
+    }, [projects, surveys]);
 
-    const projectCounts = calculateProjectCounts();
-    // Create cards data from user profile
-    const userCards = profile?.message ? [
+    // COUNT EVERYTHING
+    const counts = useMemo(() => {
+        return combinedData.reduce(
+            (acc, item) => {
+                acc.total++;
+
+                if (item.status === PROJECT_STATUS.ACTIVE) acc.active++;
+                if (item.status === PROJECT_STATUS.COMPLETED) acc.completed++;
+                if (item.status === PROJECT_STATUS.DRAFT) acc.draft++;
+
+                return acc;
+            },
+            {
+                total: 0,
+                active: 0,
+                completed: 0,
+                draft: 0,
+            }
+        );
+    }, [combinedData]);
+
+    const userCards = [
         {
             id: 1,
-            cardTitle: "Total Projects",
-            numb: projectCounts.totalProjects,
-            image: Cards?.[0]?.image || ""
+            cardTitle: "Total",
+            numb: counts.total,
+            image: Cards?.[0]?.image || "",
         },
         {
             id: 2,
             cardTitle: "Active",
-            numb:
-                profile?.message?.projects?.filter(
-                    (p) => p?.status === "active"
-                ).length || 0,
-            image: Cards?.[1]?.image || ""
+            numb: counts.active,
+            image: Cards?.[1]?.image || "",
         },
         {
             id: 3,
             cardTitle: "Completed",
-            numb: projectCounts.completedProjects,
-            image: Cards?.[2]?.image || ""
+            numb: counts.completed,
+            image: Cards?.[2]?.image || "",
         },
         {
             id: 4,
             cardTitle: "Drafts",
-            numb: projectCounts.draftProjects,
-            image: Cards?.[3]?.image || ""
-        }
-    ] : Cards || [];
+            numb: counts.draft,
+            image: Cards?.[3]?.image || "",
+        },
+    ];
 
     if (loading) {
-        return (
-            <div className="flex justify-center items-center">
-                <p className="text-gray-500">Loading profile...</p>
-            </div>
-        );
+        return <p className="text-gray-500">Loading profile...</p>;
     }
 
     if (error) {
         return (
-            <div className="flex justify-center items-center">
-                <p className="text-red-500">Error loading profile: {error?.message || error}</p>
-            </div>
+            <p className="text-red-500">
+                Error loading profile: {error?.message || error}
+            </p>
         );
     }
 
     return (
         <>
-            {userCards.map(items => (
+            {userCards.map((items) => (
                 <div
-                    className="md:w-[223px] w-full mx-auto rounded-[10px] text-[#4A5565] border border-[#DADCE0] py-[20px] md:px-[25px] px-4 bg-[#FFFFFF]"
-                    id={items.id}
                     key={items.id}
+                    className="md:w-[223px] w-full mx-auto rounded-[10px] text-[#4A5565] border border-[#DADCE0] py-[20px] md:px-[25px] px-4 bg-[#FFFFFF]"
                 >
                     <div className="md:w-[195px] flex justify-around items-center">
                         <div className="w-[88px]">
-                            <p className="font-instrument md:text-[14px] leading-[20px] tracking-[-0.15px] font-normal capitalize">{items.cardTitle}</p>
-                            <p className="font-instrument font-bold md:text-[28px] text-[20px] leading-[36px] tracking-[0.4px]">{items.numb}</p>
+                            <p className="capitalize">{items.cardTitle}</p>
+                            <p className="font-bold text-[20px]">
+                                {items.numb}
+                            </p>
                         </div>
                         <div className="w-[40px]">
-                            <img src={items.image} alt={items.cardTitle} className="object-contain w-10" />
+                            <img
+                                src={items.image}
+                                alt={items.cardTitle}
+                                className="object-contain w-10"
+                            />
                         </div>
                     </div>
                 </div>
             ))}
         </>
     );
-}
+};
 
 export default DashboardCard;

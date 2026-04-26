@@ -1,5 +1,5 @@
 export const PROJECT_STATUS = {
-  ACTIVE: "in_progress",
+  ACTIVE: "active",
   COMPLETED: "completed",
   DRAFT: "draft",
 };

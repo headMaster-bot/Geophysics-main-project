@@ -16,15 +16,15 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
     const { projectDrafts = [], loadingProject } = useSelector((state) => state.projects);
     // complete project
     const { completeProjects = [] } = useSelector((state) => state.projects);
-    const { surveys } = useSelector((state) => state.surveys);
+    const { draftAndComplete } = useSelector((state) => state.surveys);
 
     console.log(completeProjects, "Project");
-    console.log(surveys, "Survey");
+    console.log(draftAndComplete, "Survey");
     // console.log(drafts?.data, "CHECK THIS");
 
     // combineData
     const combinedData = [
-        ...(surveys || []),
+        ...(draftAndComplete || []),
         ...(completeProjects || [])
     ];
     // mappping combine data

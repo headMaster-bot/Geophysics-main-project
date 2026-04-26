@@ -11,6 +11,7 @@ const initialState = {
     completes: [],
     surveys: [],
     surveyss: [],
+    draftAndComplete: [],
     survey: null,
     success: false,
     successMessage: null,
@@ -681,7 +682,7 @@ const surveySlice = createSlice({
 
         builder.addCase(fetchSurveyByStatusAction.fulfilled, (state, action) => {
             state.loading = false;
-            state.surveys = action.payload || [];
+            state.draftAndComplete = action.payload || [];
         });
 
         builder.addCase(fetchSurveyByStatusAction.rejected, (state, action) => {
