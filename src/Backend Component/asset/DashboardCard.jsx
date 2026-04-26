@@ -29,12 +29,40 @@ const DashboardCard = ({ Cards }) => {
         ).toLowerCase(),
     });
 
+    // const normalize = (item, type) => {
+    //     let rawStatus =
+    //         item?.status ??
+    //         item?.surveyStatus ??
+    //         item?.state ??
+    //         "";
+
+    //     rawStatus = String(rawStatus).toLowerCase().trim();
+
+    //     // 🔥 handle all draft variations
+    //     if (
+    //         rawStatus === "draft" ||
+    //         rawStatus.includes("draft") ||
+    //         item?.isDraft === true
+    //     ) {
+    //         rawStatus = "draft";
+    //     }
+
+    //     return {
+    //         type,
+    //         status: rawStatus,
+    //     };
+    // };
+
     const combinedData = useMemo(() => {
         return [
             ...projects.map(p => normalize(p, "project")),
             ...surveys.map(s => normalize(s, "survey")),
         ];
     }, [projects, surveys]);
+    console.log(
+        "DRAFT ITEMS:",
+        combinedData.filter(i => i.status === "draft")
+    );
 
     // COUNT EVERYTHING
     const counts = useMemo(() => {
