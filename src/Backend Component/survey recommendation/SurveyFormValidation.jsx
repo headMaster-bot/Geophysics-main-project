@@ -6,6 +6,7 @@ import SurveyForm from "./SurveyForm";
 import {
   createSurveyAction,
   fetchDraftAction,
+  updateSurveyAction,
   saveDraftAction,
 } from "../../redux/slice/survey/surveySlice";
 
@@ -36,10 +37,11 @@ const SurveyFormValidation = ({ onNext }) => {
   const { id } = useParams();
 
   useEffect(() => {
-    if (id) {
-      dispatch(fetchDraftAction(id));
-    }
-  }, [id, dispatch]);
+  if (id) {
+    dispatch(fetchDraftAction(id));
+    setSurveyId(id); // 🔥 IMPORTANT FIX
+  }
+}, [id, dispatch]);
 
   const { error: reduxError, success, successMessage, survey } = useSelector(
     (state) => state.surveys
@@ -125,128 +127,127 @@ const SurveyFormValidation = ({ onNext }) => {
   };
 
   // ✅ SAVE TO DRAFT
-  const handleSaveToDraft = async () => {
-    try {
-      const cleanData = Object.entries(surveyForm).reduce(
-        (acc, [key, value]) => {
-          if (value !== "" && value !== null && value !== undefined) {
-            acc[key] = value;
-          }
-          return acc;
-        },
-        {}
-      );
+ const handleSaveToDraft = async () => {
+  try {
+    const cleanData = Object.fromEntries(
+      Object.entries(surveyForm).filter(
+        ([_, v]) => v !== "" && v !== null && v !== undefined
+      )
+    );
 
-      const payload = {
-        ...cleanData,
-        status: "draft",
-        ...(surveyId && { _id: surveyId }), // ✅ FIXED
-      };
-
-      const draft = await dispatch(saveDraftAction(payload)).unwrap();
-
-      if (draft?._id) {
-        setSurveyId(draft._id);
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "Saved",
-        text: "Draft saved successfully",
-      }).then(() => {
-        navigate("/dashboard/my-project");
-      });
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: err?.message || "Failed to save draft",
-      });
-    }
-  };
-
-  // ✅ SUBMIT SURVEY
-  const handleSurveySubmit = async (e) => {
-    e.preventDefault();
-
-    const surveyFormError = {
-      surveyName: !surveyForm.surveyName?.trim()
-        ? "Survey name is required"
-        : "",
-      surveyObjective: !surveyForm.surveyObjective
-        ? "Survey objective must be selected"
-        : "",
+    const payload = {
+      ...cleanData,
+      status: "draft",
+      ...(surveyId && { _id: surveyId }),
     };
 
-    setError(surveyFormError);
+    const draft = await dispatch(saveDraftAction(payload)).unwrap();
 
-    if (surveyFormError.surveyName || surveyFormError.surveyObjective) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Fill all required fields (*) before continuing",
-      });
-      return;
-    }
+    const newId = draft?._id || draft?.survey?._id;
 
-    try {
-      const res = await dispatch(createSurveyAction(surveyForm)).unwrap();
-      console.log(res, "Survey");
+    if (newId) setSurveyId(newId);
 
-      // const createdSurvey = res.payload?.data || res.payload;
+    Swal.fire({
+      icon: "success",
+      title: "Saved",
+      text: "Draft saved successfully",
+    });
+    navigate(`/dashboard/my-project`);
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err?.message || "Failed to save draft",
+    });
+  }
+};
 
-      // const newSurveyId = res?.surveyCreated?._id;
+  // ✅ SUBMIT SURVEY
+const handleSurveySubmit = async (e) => {
+  e.preventDefault();
 
-      // console.log("🔥 NEW PROJECT ID:", newSurveyId);
-
-      // if (!newSurveyId) {
-      //   console.log("❌ No ID returned");
-      //   return;
-      // }
-
-      console.log("Survey RESPONSE:", res);
-
-      // const newSurveyId = res?.surveyCreated?._id;
-      const newSurveyId =
-        res?.surveyCreated?._id ||
-        res?.data?.surveyCreated?._id ||
-        res?._id;
-
-      if (!newSurveyId) {
-        console.log("❌ No ID returned", res);
-        return;
-      }
-      setSubmitted(true);
-      navigate(`/dashboard/survey/${newSurveyId}/1`);
-
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: err?.message || "Failed to create survey",
-      });
-    }
+  const surveyFormError = {
+    surveyName: !surveyForm.surveyName?.trim()
+      ? "Survey name is required"
+      : "",
+    surveyObjective: !surveyForm.surveyObjective
+      ? "Survey objective must be selected"
+      : "",
   };
 
-  // ✅ SUCCESS HANDLER
-  useEffect(() => {
-    if (submitted && success) {
-      Swal.fire({
-        icon: "success",
-        title: "Saved",
-        text: successMessage || "Survey saved successfully",
-      }).then(async () => {
-        setSubmitted(false);
-        dispatch(resetSuccessAction());
+  setError(surveyFormError);
 
-        await dispatch(getUserProfileAction());
+  // ❌ STOP HERE IF ERROR
+  if (surveyFormError.surveyName || surveyFormError.surveyObjective) {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Fill all required fields (*) before continuing",
+    });
+    return;
+  }
 
-        if (onNext) onNext(2);
-        // navigate(`/dashboard/survey/${newSurveyId}/2`);
+  try {
+    let res;
 
-      });
+    if (surveyId) {
+      res = await dispatch(
+        updateSurveyAction({
+          id: surveyId,
+          surveyData: surveyForm,
+        })
+      ).unwrap();
+    } else {
+      res = await dispatch(createSurveyAction(surveyForm)).unwrap();
     }
-  }, [submitted, success, successMessage, dispatch, onNext]);
+
+    const newId =
+      res?.surveyCreated?._id ||
+      res?.survey?._id ||
+      res?._id;
+
+    if (!newId) throw new Error("No survey ID returned");
+
+    setSurveyId(newId);
+
+    // ✅ SWEET ALERT MUST COME AFTER API
+    Swal.fire({
+      icon: "success",
+      title: "Saved",
+      text: "Survey created successfully",
+    }).then(() => {
+      // ✅ ONLY NAVIGATE HERE
+      navigate(`/dashboard/survey/${newId}/2`);
+    });
+
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err?.message || "Failed to create/update survey",
+    });
+  }
+};
+
+  // ✅ SUCCESS HANDLER
+  // useEffect(() => {
+  //   if (submitted && success) {
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Saved",
+  //       text: successMessage || "Survey saved successfully",
+  //     }).then(async () => {
+  //       setSubmitted(false);
+  //       dispatch(resetSuccessAction());
+
+  //       await dispatch(getUserProfileAction());
+
+  //       if (onNext) onNext(2);
+  //       // navigate(`/dashboard/survey/${newSurveyId}/2`);
+
+  //     });
+  //   }
+  // }, [submitted, success, successMessage, dispatch, onNext]);
 
   // ❌ ERROR HANDLER
   useEffect(() => {

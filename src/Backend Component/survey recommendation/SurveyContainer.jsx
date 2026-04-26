@@ -15,39 +15,46 @@ export default function SurveyContainer() {
 
   const [secondSurveyData, setSecondSurveyData] = useState(null);
   const [selectedMethodFromFourth, setSelectedMethodFromFourth] = useState(null);
-  const [surveyForm, setSurveyForm] = useState({});
-  const [surveyId, setSurveyId] = useState(null);
 
-  const goToNextSurveyStep = () => {
-    if (surveyStep >= 6) {
-      navigate('/dashboard/survey/1');
-    } else {
-      navigate(`/dashboard/survey/${id}/${surveyStep + 1}`);
-    }
+  const [surveyId, setSurveyId] = useState(id || null);
+
+  // ✅ SIMPLE NAV FUNCTION (NO CONFUSION)
+  const goToStep = (stepNumber, customId = null) => {
+    const activeId = customId || surveyId || id;
+
+    if (!activeId) return;
+
+    navigate(`/dashboard/survey/${activeId}/${stepNumber}`);
   };
 
   return (
-    <div className='w-[967px] mx-auto'>
+    <div className="w-[967px] mx-auto">
 
-      {/* Hide SurveyConnectivity on step 6 */}
-      {/* {surveyStep !== 6 && <SurveyConnectivity />} */}
-      {surveyStep !== 1 && surveyStep !== 6 && <SurveyConnectivity
-        surveyForm={surveyForm}
-        setSurveyForm={setSurveyForm}
-        surveyId={surveyId}
-        setSurveyId={setSurveyId}
-      />}
+      {surveyStep !== 1 && surveyStep !== 6 && (
+        <SurveyConnectivity
+          surveyId={surveyId}
+          setSurveyId={setSurveyId}
+        />
+      )}
 
-      <div className='mt-5'>
+      <div className="mt-5">
+
         {surveyStep === 1 && (
-          <SurveyFormValidation onNext={goToNextSurveyStep} />
+          <SurveyFormValidation
+            onNext={(newId) => {
+              setSurveyId(newId);
+              goToStep(2, newId);
+            }}
+            surveyId={surveyId}
+            setSurveyId={setSurveyId}
+          />
         )}
 
         {surveyStep === 2 && (
           <SecondSurveyConnectivity
             onNext={(data) => {
               setSecondSurveyData(data);
-              goToNextSurveyStep();
+              goToStep(3);
             }}
           />
         )}
@@ -55,29 +62,30 @@ export default function SurveyContainer() {
         {surveyStep === 3 && (
           <ThirdSurveyValidation
             secondSurveyData={secondSurveyData}
-            onNext={goToNextSurveyStep}
+            onNext={() => goToStep(4)}
           />
         )}
 
         {surveyStep === 4 && (
           <FourthSurveyConnectivity
-            onNext={(selectedMethod) => {
-              setSelectedMethodFromFourth(selectedMethod);
-              goToNextSurveyStep();
+            onNext={(method) => {
+              setSelectedMethodFromFourth(method);
+              goToStep(5);
             }}
           />
         )}
 
         {surveyStep === 5 && (
-          <FifthSurveyConnectivity onNext={goToNextSurveyStep} />
+          <FifthSurveyConnectivity onNext={() => goToStep(6)} />
         )}
 
         {surveyStep === 6 && (
           <SixSurveyConnectivity
             selectedMethod={selectedMethodFromFourth}
-            onNext={goToNextSurveyStep}
+            onNext={() => goToStep(1)}
           />
         )}
+
       </div>
     </div>
   );

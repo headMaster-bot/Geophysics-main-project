@@ -88,88 +88,60 @@ const SecondSurveyConnectivity = ({ onNext }) => {
   };
 
   // SUBMIT HANDLER
-  const handleSecondSurveySubmit = (e) => {
-    e.preventDefault();
+ const handleSecondSurveySubmit = async (e) => {
+  e.preventDefault();
 
-    let errors = {
-      latName: "",
-      longName: "",
-    };
+  if (!form.latitude || !form.longitude) {
+    Swal.fire("Error", "Fill all fields", "error");
+    return;
+  }
 
-    if (!form.latitude) errors.latName = "Latitude is required";
-    if (!form.longitude) errors.longName = "Longitude is required";
-
-    // Prevent NaN
-    if (isNaN(Number(form.latitude))) {
-      errors.latName = "Latitude must be a number";
-    }
-
-    if (isNaN(Number(form.longitude))) {
-      errors.longName = "Longitude must be a number";
-    }
-
-    setError(errors);
-
-    if (errors.latName || errors.longName) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Input",
-        text: "Please enter valid numeric values",
-      });
-      return;
-    }
-
-    if (!surveyId) {
-      Swal.fire({
-        icon: "error",
-        title: "Survey not ready",
-        text: "No survey found. Complete Step 1 first.",
-      });
-      return;
-    }
-
-    const lat = Number(form.latitude);
-    const lng = Number(form.longitude);
-
-    // const surveyData = {
-    //   latitude: lat,
-    //   longitude: lng,
-    // };
-    const surveyData = {
-      latitude: Number(form.latitude),
-      longitude: Number(form.longitude),
-    };
-
-    console.log("STEP 2 PAYLOAD:", {
-      surveyId,
-      surveyData,
-    });
-
-    dispatch(updateSurveyAction({ id: surveyId, surveyData }));
+  const surveyData = {
+    latitude: Number(form.latitude),
+    longitude: Number(form.longitude),
   };
 
+  try {
+    await dispatch(
+      updateSurveyAction({ id: surveyId, surveyData })
+    ).unwrap();
+
+    Swal.fire({
+      icon: "success",
+      title: "Saved",
+      text: "Survey updated",
+    }).then(() => {
+      // ✅ MUST pass data to trigger step 3 navigation
+      onNext?.(surveyData);
+    });
+
+  } catch (err) {
+    Swal.fire("Error", err?.message || "Failed", "error");
+  }
+};
+
   // SUCCESS HANDLER
-  useEffect(() => {
-    if (success) {
-      const lat = Number(form.latitude);
-      const lng = Number(form.longitude);
+  // useEffect(() => {
+  //   if (success) {
+  //     const lat = Number(form.latitude);
+  //     const lng = Number(form.longitude);
 
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: successMessage || "Survey updated successfully",
-      }).then(() => {
-        dispatch(resetSuccessAction());
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Success",
+  //       text: successMessage || "Survey updated successfully",
+  //     }).then(() => {
+  //       dispatch(resetSuccessAction());
 
-        // IMPORTANT: Pass data forward (THIS FIXES YOUR STEP 3 ISSUE)
-        // onNext?.({
-        //   latitude: lat,
-        //   longitude: lng,
-        // });
-        onNext?.(); // go to step 3
-      });
-    }
-  }, [success, successMessage, dispatch, onNext, form]);
+  //       // IMPORTANT: Pass data forward (THIS FIXES YOUR STEP 3 ISSUE)
+  //       // onNext?.({
+  //       //   latitude: lat,
+  //       //   longitude: lng,
+  //       // });
+  //       onNext?.(); // go to step 3
+  //     });
+  //   }
+  // }, [success, successMessage, dispatch, onNext, form]);
 
   // ERROR HANDLER
   useEffect(() => {

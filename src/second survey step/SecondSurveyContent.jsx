@@ -2,7 +2,17 @@ import React from 'react'
 import save from "../Backend Component/image/Save.png"
 import right from "../Backend Component/image/ChevronRight.png";
 import left from "../Backend Component/image/ChevronLeft.png";
-export default function SecondSurveyContent({title, survey,error, SecondTitle, secondSurveyForm, handleSubmit, handleSecondSurveyChange, isLoading = false}) {
+
+export default function SecondSurveyContent({
+  title,
+  survey,
+  error,
+  SecondTitle,
+  secondSurveyForm = {},   // ✅ DEFAULT VALUE FIX
+  handleSubmit,
+  handleSecondSurveyChange,
+  isLoading = false
+}) {
   return (
     <form className='w-[967px] mx-auto ' onSubmit={handleSubmit}>
 
@@ -54,7 +64,7 @@ export default function SecondSurveyContent({title, survey,error, SecondTitle, s
                         </label>
 
                         <input
-                            type="number" value={secondSurveyForm.latitude} onChange={handleSecondSurveyChange} name="latitude" placeholder='length of survey area(000 mm) '
+                            type="number" value={secondSurveyForm?.latitude || ""} onChange={handleSecondSurveyChange} name="latitude" placeholder='length of survey area(000 mm) '
                             className="w-full rounded-[10px]  border border-[#DADCE0] py-[10px] px-[15px] mt-2 focus:outline-none focus:ring-2 focus:ring-[#DADCE0]"
                         />
                         <p className="text-red-500 text-[12px]">
@@ -68,7 +78,7 @@ export default function SecondSurveyContent({title, survey,error, SecondTitle, s
                         </label>
 
                         <input
-                            type="number" onChange={handleSecondSurveyChange} value={secondSurveyForm.longitude} name="longitude" placeholder='breath of survey area(000 mm) '
+                            type="number" onChange={handleSecondSurveyChange} value={secondSurveyForm?.longitude || ""} name="longitude" placeholder='breath of survey area(000 mm) '
                             className="w-full rounded-[10px] border border-[#DADCE0] py-[10px] px-[15px] mt-2 focus:outline-none focus:ring-2 focus:ring-[#DADCE0]"
                         />
                         <p className="text-red-500 text-[12px]">
@@ -79,7 +89,8 @@ export default function SecondSurveyContent({title, survey,error, SecondTitle, s
 
                 <div className="flex justify-between py-8">
             
-                    <button className="flex gap-2 items-center justify-center w-[120px] py-[10px] px-[15px] rounded-[10px] border border-[#DADCE0] text-[#364153] font-medium text-[14px]">
+                    <button  type="button"
+                        onClick={() => window.history.back()} className="flex gap-2 items-center justify-center w-[120px] py-[10px] px-[15px] rounded-[10px] border border-[#DADCE0] text-[#364153] font-medium text-[14px]">
                         <img src={left} alt="" />
                         Cancel
                     </button>

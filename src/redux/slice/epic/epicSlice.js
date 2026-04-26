@@ -1,77 +1,121 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import baseUrl from "../../../utils/baseUrl";
+import { resetErrAction, resetSuccessAction } from "../globalActions/globalActions";
 
-// ================= CREATE EPIC =================
-export const createEpicAction = createAsyncThunk(
-  "epics/create",
-  async (data, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/epics",
-        data
-      );
-
-      return res.data.data; // 👈 match backend
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-// ================= FETCH EPICS =================
-export const fetchEpicsAction = createAsyncThunk(
-  "epics/fetch",
-  async (projectId, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/api/epics/${projectId}`
-      );
-
-      return res.data.data; // 👈 match backend
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-// ================= SLICE =================
-const epicSlice = createSlice({
-  name: "epics",
-  initialState: {
-    epics: [],
+// initialState
+const initialState = {
     loading: false,
     error: null,
-  },
-  reducers: {},
+    epics: [],
+    epic: null,
+    success: false,
+    successMessage: null,
+};
 
-  extraReducers: (builder) => {
-    builder
-      // CREATE
-      .addCase(createEpicAction.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(createEpicAction.fulfilled, (state, action) => {
-        state.loading = false;
-        state.epics.push(action.payload);
-      })
-      .addCase(createEpicAction.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+export const createEpicAction = createAsyncThunk(
+    "epic/create",
+    async ({ title, description, priority, project }, { rejectWithValue, getState, dispatch }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const res = await axios.post(`${baseUrl}/epics/create-epic`, 
+                
+                {
+                    title, description, priority, project
+                }, config);
+            console.log(res.data, "epic data");
+            
+            if (!res.data) {
+                throw new Error(res.data.message || "Failed to create epic");
+            }
+            
+            return res.data.data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data?.message || error.message);
+        }
+    }
+);
 
-      // FETCH
-      .addCase(fetchEpicsAction.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchEpicsAction.fulfilled, (state, action) => {
-        state.loading = false;
-        state.epics = action.payload;
-      })
-      .addCase(fetchEpicsAction.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-  },
+// fetch all epics action
+export const fetchEpicsAction = createAsyncThunk(
+    "epic/fetchAll",
+    async (projectId, { rejectWithValue, getState, dispatch }) => {
+        try {
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+            const res = await axios.get(`${baseUrl}/epics/all-epics`, config);
+            // console.log(res.data, "Epics data");
+            
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error?.response?.data?.message || error.message);
+        }
+    }
+);
+
+
+
+const epicSlice = createSlice({
+    name: "epics",
+    initialState,
+    extraReducers: (builder) => {
+        // Create Project
+        builder.addCase(createEpicAction.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(createEpicAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.success = true;
+            state.successMessage = action.payload?.message || action.payload?.messsage || "Epic created";
+            const epicData = action.payload?.data || action.payload?.messsage || action.payload?.message || null;
+            state.epic = epicData;
+            if (epicData) {
+                state.epics.push(epicData);
+            }
+        });
+        builder.addCase(createEpicAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+            state.success = false;
+        });
+
+        // Fetch all epics
+        builder.addCase(fetchEpicsAction.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchEpicsAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.epics = action.payload?.message || [];
+            state.error = null;
+        });
+        builder.addCase(fetchEpicsAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
+
+        // Reset error and success
+        builder.addCase(resetErrAction.pending, (state) => {
+            state.error = null;
+        });
+        builder.addCase(resetSuccessAction.pending, (state) => {
+            state.success = false;
+            state.successMessage = null;
+        });
+    }
 });
 
-export default epicSlice.reducer;
+const epicReducers = epicSlice.reducer;
+
+export default epicReducers;
