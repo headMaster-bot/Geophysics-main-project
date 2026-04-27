@@ -119,8 +119,8 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
                 </div>
             </div>
 
-            <div className="md:container font-instrument w-[147px] h-[20px] mt-[8px] font-normal text-[14px] leading-[14px] tracking-[-0.15px] text-[#4A5565]">
-                <p>Showing 4 of 4 projects</p>
+            <div className="md:container font-instrument w-[147px] h-[20px] mt-[8px] font-bold text-[14px] leading-[14px] tracking-[-0.15px] text-[#4A5565]">
+                <p>Showing {projectData.length}  project data</p>
             </div>
 
             {/* <div className="grid grid-cols-3 gap-4">
