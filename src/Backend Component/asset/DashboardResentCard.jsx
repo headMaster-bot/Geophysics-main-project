@@ -60,6 +60,8 @@ const DashboardResentCard = ({ handleDataPath }) => {
     useEffect(() => {
         dispatch(fetchSurveyByStatusAction(["draft", "completed"]));
     }, [dispatch]);
+    console.log("working");
+    
 
     return (
         <div className="grid grid-cols-3 gap-4 my-4">
