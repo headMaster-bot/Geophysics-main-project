@@ -101,7 +101,7 @@ const BackLog = ({ currentProjectId, openModal }) => {
             {currentProjectEpics.map((epic) => (
               <div key={epic._id}>
                 <div className="px-4 justify-between border items-center rounded-[10px] border-[#DADCE0] bg-[#F9FAFB] flex gap-4 py-2">
-                  
+
                   {/* LEFT SIDE */}
                   <div className="flex">
                     {/* TOGGLE ICON */}

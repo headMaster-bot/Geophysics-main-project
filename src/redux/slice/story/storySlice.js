@@ -156,6 +156,8 @@ const storySlice = createSlice({
         //         state.stories.push(storyData);
         //     }
         // });
+
+
         builder.addCase(createStoryAction.fulfilled, (state, action) => {
             const newStory = action.payload;
 
@@ -183,6 +185,21 @@ const storySlice = createSlice({
                 epic.stories.push(newStory);
             }
         });
+
+        // builder.addCase(createStoryAction.fulfilled, (state, action) => {
+        //     const newStory = action.payload;
+
+        //     if (!Array.isArray(state.epics)) return; // ✅ safety guard
+
+        //     const epic = state.epics.find(
+        //         (e) => e._id === newStory.epic
+        //     );
+
+        //     if (epic) {
+        //         epic.stories = epic.stories || [];
+        //         epic.stories.push(newStory);
+        //     }
+        // });
         builder.addCase(createStoryAction.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;

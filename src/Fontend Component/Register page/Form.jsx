@@ -102,7 +102,7 @@ const Form = ({
             >
 
               <option value="">Choose role</option>
-              <option value="geophysics">Geophysic</option>
+              <option value="geophysicist">Geophysicist</option>
               <option value="geologist">Geologist</option>
               <option value="engineer">Engineer</option>
             </select>
