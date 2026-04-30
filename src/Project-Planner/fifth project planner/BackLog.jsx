@@ -60,13 +60,13 @@ const BackLog = ({ currentProjectId, openModal }) => {
   return (
     <div>
       {/* ================= HEADER ================= */}
-      <div className="flex justify-between items-center px-2 mx-8 py-12">
-        <p className="text-[#364153] font-instrument font-semibold text-[18px] leading-[28px] tracking-[-0.44px]">
+      <div className="flex justify-between items-center px-2 mx-8">
+        {/* <p className="text-[#364153] font-instrument font-semibold text-[18px] leading-[28px] tracking-[-0.44px]">
           Product Backlog
-        </p>
+        </p> */}
 
         {/* ✅ FIXED BUTTON (MAIN BUG FIX) */}
-        <button
+        {/* <button
           onClick={openModal}
           className="border-[2px] bg-[#585858] py-3 border-[#DADCE0] w-[116px] gap-2 flex items-center rounded-[10px]"
         >
@@ -79,7 +79,7 @@ const BackLog = ({ currentProjectId, openModal }) => {
               new epic
             </p>
           </div>
-        </button>
+        </button> */}
       </div>
 
       {/* ================= BACKLOG CONTAINER ================= */}

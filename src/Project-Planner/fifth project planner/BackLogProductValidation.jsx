@@ -6,6 +6,8 @@ import { getUserProjectsAction } from "../../redux/slice/project/projectSlice";
 import BackLogProduct from "./BackLogProduct";
 import BackLogModal from "./BackLogModal";
 import BackLog from "./BackLog";
+import Plus from "../../Backend Component/image/Plus.png";
+
 const BackLogProductValidation = ({ onNext }) => {
   const dispatch = useDispatch();
 
@@ -133,11 +135,30 @@ const BackLogProductValidation = ({ onNext }) => {
       });
     }
   };
+return (
+  <>
+    {/* HEADER ALWAYS VISIBLE */}
+    <div className="flex justify-between pb-14 items-center mx-8 text-[#101828]">
+        <p className="w-[200px] font-instrument font-semibold text-[18px] leading-[28px]">
+          Product Backlog
+        </p>
 
-  return epicCreated ? (
-    <BackLog currentProjectId={currentProjectId} />
-  ) : (
-    <div>
+        <button
+          onClick={openModal}
+          type="button"
+          className="flex items-center text-[#ffffff] rounded-[10px] bg-[#585858] py-2 px-6"
+        >
+          <img src={Plus} alt="plus" className="w-[18px]" />
+          <p className="font-instrument font-normal text-[14px] leading-[28px] ml-2">
+            New Epic
+          </p>
+        </button>
+      </div>
+
+    {/* MAIN CONTENT */}
+    {epicCreated ? (
+      <BackLog currentProjectId={currentProjectId} />
+    ) : (
       <BackLogProduct
         items={[
           { id: 1, topic: "backlog" },
@@ -145,28 +166,28 @@ const BackLogProductValidation = ({ onNext }) => {
           { id: 3, topic: "sprint view" },
           { id: 4, topic: "burndown" },
         ]}
-        activeId={activeId}
-        setActiveId={setActiveId}
-        isModalOpen={isModalOpen}
-        openModal={openModal}
-        closeModal={closeModal}
-        submitData={handleSubmit}
-      />
-
-      {isModalOpen && (
-        <BackLogModal
+          activeId={activeId}
+          setActiveId={setActiveId}
+          isModalOpen={isModalOpen}
+          openModal={openModal}
           closeModal={closeModal}
-          epicForm={epicForm}
-          handleEpicChange={handleEpicChange}
-          handleSubmit={handleSubmit}
-          errors={errors}
-          projects={projects}
-          onNext={onNext}
-         
-        />
-      )}
-    </div>
-  );
-};
+          submitData={handleSubmit}
+      />
+    )}
+
+    {/* ✅ MODAL MUST BE OUTSIDE CONDITIONAL */}
+    {isModalOpen && (
+      <BackLogModal
+        closeModal={closeModal}
+        epicForm={epicForm}
+        handleEpicChange={handleEpicChange}
+        handleSubmit={handleSubmit}
+        errors={errors}
+        projects={projects}
+        onNext={onNext}
+      />
+    )}
+  </>
+)}
 
 export default BackLogProductValidation;
