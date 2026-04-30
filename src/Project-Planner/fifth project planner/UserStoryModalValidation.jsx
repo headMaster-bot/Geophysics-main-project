@@ -4,9 +4,11 @@ import UseStoryModal from "./UseStoryModal";
 import { useDispatch } from "react-redux";
 import { createStoryAction, fetchStoriesByEpicIdAction } from "../../redux/slice/story/storySlice";
 
-const UserStoryModalValidation = ({ closeUserStoryModal, epicId }) => {
+const UserStoryModalValidation = ({ closeUserStoryModal, epicId, projectId }) => {
   console.log(epicId, "epic id declare");
-  
+
+  console.log("PROJECT ID:", projectId);
+  console.log("EPIC ID:", epicId);
   // dispatch
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -45,103 +47,84 @@ const UserStoryModalValidation = ({ closeUserStoryModal, epicId }) => {
   };
 
   // HANDLE SUBMIT
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+
+  //   // validation...
+
+  //   try {
+  //     await dispatch(
+  //       createStoryAction({
+  //         ...formData,
+  //         epicId,
+  //       })
+  //     ).unwrap();
+
+  //     await dispatch(fetchStoriesByEpicIdAction(epicId));
+
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "User Story Created!",
+  //       text: "New user story added",
+  //     });
+
+  //     setFormData({
+  //       title: "",
+  //       priority: "",
+  //       points: "",
+  //       description: "",
+  //     });
+
+  //     closeUserStoryModal();
+
+  //   } catch (err) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error",
+  //       text: err?.message || "Something went wrong",
+  //     });
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
 
-    const newErrors = {
-      titleError: "",
-      priorityError: "",
-      pointError: "",
-      // assignError: "",
-      descriptionError: "",
-    };
-    // const payload = {
-    //   ...formData,
-    //   epic: epicId, // 🔥 THIS IS THE KEY
-    // };
-
-    // Validation
-    if (!formData.title.trim()) {
-      newErrors.titleError = "Title is required";
-    }
-
-    if (!formData.priority.trim()) {
-      newErrors.priorityError = "Priority is required";
-    }
-
-    if (!formData.points.trim()) {
-      newErrors.pointError = "Point is required";
-    }
-
-    // if (!formData.assigned.trim()) {
-    //   newErrors.assignError = "Assign is required";
-    // }
-
-    if (!formData.description.trim()) {
-      newErrors.descriptionError = "Description is required";
-    }
-
-    setErrors(newErrors);
-
-    //  DEFINE IT HERE
-    const hasError = Object.values(newErrors).some(Boolean);
-
-    //  STOP IF ERROR
-    if (hasError) {
-      Swal.fire({
-        title: "Validation Error",
-        text: "Please fill in all required fields",
-        icon: "error",
-      });
-      return;
-    }
-
-    //  NOW SAFE TO DISPATCH
     try {
-      // const payload = await dispatch(createStoryAction(formData)).unwrap();
-      const payload = await dispatch(
+      await dispatch(
         createStoryAction({
           ...formData,
-          epicId, // ✅ THIS IS THE KEY FIX
+          epicId,
+          projectId,
         })
       ).unwrap();
-      console.log(payload, "Payload");
-      console.log("FINAL PAYLOAD:", {
-        ...formData,
-        epicId, 
-      });
 
-      // refresh only this epic stories
-      dispatch(fetchStoriesByEpicIdAction(epicId));
+      await dispatch(fetchStoriesByEpicIdAction(epicId));
 
-
-      // ✅ success
       Swal.fire({
         icon: "success",
         title: "User Story Created!",
         text: "New user story added",
       });
 
+      setFormData({
+        title: "",
+        priority: "",
+        points: "",
+        description: "",
+      });
+
+      closeUserStoryModal();
     } catch (err) {
-      // ✅ error (including duplicates)
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: err?.message || "Something went wrong, duplicate story title",
+        text: err || "Something went wrong",
       });
     }
-
-    setFormData({
-      title: "",
-      priority: "",
-      points: "",
-      // assigned: "",
-      description: "",
-    });
-
-    closeUserStoryModal();
   };
-
   return (
     <UseStoryModal
       closeUserStoryModal={closeUserStoryModal}

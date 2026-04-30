@@ -139,7 +139,11 @@ const BackLog = ({ currentProjectId, openModal }) => {
 
                 {/* ================= STORY CONTENT ================= */}
                 {toggledEpics[epic._id] && (
-                  <BackLogContent epicId={epic._id} />
+                  <BackLogContent
+                    epicId={epic._id}
+                    // projectId={epic.projectId}
+                    projectId={epic?.project || epic?.project?._id}
+                  />
                 )}
               </div>
             ))}

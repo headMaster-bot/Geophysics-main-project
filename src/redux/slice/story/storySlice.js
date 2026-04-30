@@ -86,7 +86,32 @@ export const fetchStoriesByEpicIdAction = createAsyncThunk(
         }
     }
 );
-// get stories by projectId
+// get stories by projectId before
+// export const fetchStoriesByProjectAction = createAsyncThunk(
+//     "stories/fetchByProject",
+//     async (projectId, { rejectWithValue, getState }) => {
+//         try {
+//             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+
+//             const config = {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             };
+
+//             const { data } = await axios.get(
+//                 `${baseUrl}/stories/stories-by-project/${projectId}`,
+//                 config
+//             );
+//             console.log(data, "stories");
+
+
+//             return { projectId, stories: data.data };
+//         } catch (error) {
+//             return rejectWithValue(error?.response?.data?.message || error.message);
+//         }
+//     }
+// );
 export const fetchStoriesByProjectAction = createAsyncThunk(
     "stories/fetchByProject",
     async (projectId, { rejectWithValue, getState }) => {
@@ -100,13 +125,18 @@ export const fetchStoriesByProjectAction = createAsyncThunk(
             };
 
             const { data } = await axios.get(
-                `${baseUrl}/stories/stories-by-project/${projectId}`,
+                `${baseUrl}/stories/project/${projectId}`, // ✅ FIXED ROUTE
                 config
             );
 
-            return { projectId, stories: data.data };
+            return {
+                projectId: String(projectId),
+                stories: data?.data || [],
+            };
         } catch (error) {
-            return rejectWithValue(error?.response?.data?.message || error.message);
+            return rejectWithValue(
+                error?.response?.data?.message || error.message
+            );
         }
     }
 );
@@ -137,9 +167,29 @@ export const updateStoryStatusAction = createAsyncThunk(
     }
 );
 
+// fetch stories by project
+// export const fetchStoriesByProject = createAsyncThunk(
+//     "story/fetchByProject",
+//     async (projectId, { rejectWithValue }) => {
+//         try {
+//             const { data } = await axios.get(
+//                 `${baseUrl}/stories/stories-by-project/${projectId}`
+//             );
+
+//             return data.data; // backend returns { status, data }
+//         } catch (error) {
+//             return rejectWithValue(error.response?.data?.message || error.message);
+//         }
+//     }
+// );
+
 const storySlice = createSlice({
     name: "stories",
     initialState,
+    clearStories: (state) => {
+        state.stories = [];
+    },
+
     extraReducers: (builder) => {
         // Create Project
         builder.addCase(createStoryAction.pending, (state) => {
@@ -216,69 +266,146 @@ const storySlice = createSlice({
 
             state.storiesByEpic[epicId] = stories;
         });
+        // builder.addCase(fetchStoriesByEpicIdAction.fulfilled, (state, action) => {
+        //     const epicId = String(action.meta.arg);
+        //     console.log("STORING FOR EPIC:", epicId);
+        //     console.log("PAYLOAD:", action.payload);
+        //     state.storiesByEpic[epicId] = action.payload || [];
+        // });
+        // builder.addCase(fetchStoriesByEpicIdAction.fulfilled, (state, action) => {
+        //     const epicId = action.meta.arg;
+
+        //     state.storiesByEpic[epicId] = Array.isArray(action.payload)
+        //         ? action.payload
+        //         : action.payload.stories;
+        // });
         builder.addCase(fetchStoriesByEpicIdAction.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
             state.success = false;
         });
         // Fetch all stories
-        builder.addCase(fetchStoriesAction.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        });
-        builder.addCase(fetchStoriesAction.fulfilled, (state, action) => {
-            state.loading = false;
-            state.stories = action.payload?.message || [];
-            state.error = null;
-        });
-        builder.addCase(fetchStoriesAction.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
-        });
+        // builder.addCase(fetchStoriesAction.pending, (state) => {
+        //     state.loading = true;
+        //     state.error = null;
+        // });
+        // builder.addCase(fetchStoriesAction.fulfilled, (state, action) => {
+        //     state.loading = false;
+        //     state.stories = action.payload?.message || [];
+        //     state.error = null;
+        // });
+        // builder.addCase(fetchStoriesAction.rejected, (state, action) => {
+        //     state.loading = false;
+        //     state.error = action.payload;
+        // });
 
         // get stories by projectId
         builder.addCase(fetchStoriesByProjectAction.pending, (state) => {
             state.loading = true;
             state.error = null;
-        });
+        })
 
         builder.addCase(fetchStoriesByProjectAction.fulfilled, (state, action) => {
             state.loading = false;
 
             const { projectId, stories } = action.payload;
 
-            // ✅ store globally
-            state.stories = stories;
-
-            // optional: cache by project
-            state.storiesByProject[projectId] = stories;
-        });
+            // 🔥 IMPORTANT: normalize key
+            state.storiesByProject[String(projectId)] = stories;
+        })
 
         builder.addCase(fetchStoriesByProjectAction.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
         });
+        // builder.addCase(fetchStoriesByProjectAction.pending, (state) => {
+        //     state.loading = true;
+        //     state.error = null;
+        // });
 
-        // update status 
+        // builder.addCase(fetchStoriesByProjectAction.fulfilled, (state, action) => {
+        //     state.loading = false;
+
+        //     const { projectId, stories } = action.payload;
+
+        //     // ✅ store globally
+        //     state.stories = stories;
+
+        //     // optional: cache by project
+        //     state.storiesByProject[projectId] = stories;
+        // });
+
+        // builder.addCase(fetchStoriesByProjectAction.fulfilled, (state, action) => {
+        //     state.loading = false;
+
+        //     const { projectId, stories } = action.payload;
+
+        //     if (!state.storiesByProject) {
+        //         state.storiesByProject = {};
+        //     }
+
+        //     // 🔥 overwrite ONLY this project key
+        //     // state.storiesByProject[projectId] = [...stories];
+        //     state.storiesByProject[String(projectId)] = [...stories];
+        // });
+
+
         builder.addCase(updateStoryStatusAction.fulfilled, (state, action) => {
             const updatedStory = action.payload;
 
-            // update global stories
-            state.stories = state.stories.map((story) =>
-                story._id === updatedStory._id ? updatedStory : story
-            );
+            if (!state.storiesByProject) return;
 
-            // update per project safely
             Object.keys(state.storiesByProject).forEach((projectId) => {
-                const projectStories = state.storiesByProject[projectId];
+                const stories = state.storiesByProject[projectId];
 
-                if (projectStories) {
-                    state.storiesByProject[projectId] = projectStories.map((story) =>
-                        story._id === updatedStory._id ? updatedStory : story
-                    );
-                }
+                if (!stories) return;
+
+                state.storiesByProject[projectId] = stories.map((story) =>
+                    story._id === updatedStory._id ? updatedStory : story
+                );
             });
         });
+
+        // builder.addCase(fetchStoriesByProjectAction.rejected, (state, action) => {
+        //     state.loading = false;
+        //     state.error = action.payload;
+        // });
+
+        // update status 
+        // builder.addCase(updateStoryStatusAction.fulfilled, (state, action) => {
+        //     const updatedStory = action.payload;
+
+        //     // update global stories
+        //     state.stories = state.stories.map((story) =>
+        //         story._id === updatedStory._id ? updatedStory : story
+        //     );
+
+        //     // update per project safely
+        //     Object.keys(state.storiesByProject).forEach((projectId) => {
+        //         const projectStories = state.storiesByProject[projectId];
+
+        //         if (projectStories) {
+        //             state.storiesByProject[projectId] = projectStories.map((story) =>
+        //                 story._id === updatedStory._id ? updatedStory : story
+        //             );
+        //         }
+        //     });
+        // });
+        // fetch all stories by project
+
+        // builder.addCase(fetchStoriesByProject.pending, (state) => {
+        //     state.loading = true;
+        //     state.error = null;
+        // })
+        // builder.addCase(fetchStoriesByProject.fulfilled, (state, action) => {
+        //     state.loading = false;
+        //     state.stories = action.payload;
+        // })
+        // builder.addCase(fetchStoriesByProject.rejected, (state, action) => {
+        //     state.loading = false;
+        //     state.error = action.payload;
+        // });
+
 
         // Reset error and success
         builder.addCase(resetErrAction.pending, (state) => {
@@ -290,7 +417,7 @@ const storySlice = createSlice({
         });
     }
 });
-
+export const { clearStories } = storySlice.actions;
 const storyReducers = storySlice.reducer;
 
 export default storyReducers;
