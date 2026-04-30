@@ -20,6 +20,7 @@ export default function ThirdSurveyValidation({ secondSurveyData, onNext }) {
 
     // ✅ Get latest survey
     const surveys = profile?.message?.survey;
+    
     const currentSurvey =
         Array.isArray(surveys) && surveys.length > 0
             ? surveys[surveys.length - 1]
