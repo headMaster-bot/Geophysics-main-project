@@ -75,7 +75,11 @@ import UseStoryTable from "./UseStoryTable";
 
 export default function BackLogContent({ epicId, projectId }) {
   console.log("EPIC:", epicId);
+// <<<<<<< HEAD
   console.log("PROJECT id fetched:", projectId);
+// =======
+  console.log("PROJECT:", projectId);
+// >>>>>>> c82ddb3 (fetch to stories by projectId)
 
   const [openUserStoryModal, setOpenUserStoryModal] = useState(false);
   const [selectedEpicId, setSelectedEpicId] = useState(null);

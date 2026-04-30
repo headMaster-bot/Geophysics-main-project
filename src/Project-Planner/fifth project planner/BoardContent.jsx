@@ -40,49 +40,46 @@ const BoardContent = ({ columns }) => {
 
                 {/* Cards */}
                 <div className="min-h-[100px]">
-                  {column.items.map((item, index) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id.toString()}
-                      index={index}
-                    >
-                      {(providedDraggable, snapshotDraggable) => (
-                        <div
-                          ref={providedDraggable.innerRef}
-                          {...providedDraggable.draggableProps}
-                          {...providedDraggable.dragHandleProps}
-                          style={providedDraggable.draggableProps.style}
-                          className={`bg-white rounded-[10px] border-[2px] border-[#DADCE0] p-3 mb-3 cursor-grab ${
-                            snapshotDraggable.isDragging ? "shadow-lg" : ""
-                          }`}
-                        >
-                          {/* Title */}
-                          <p className="text-[#101828] pb-3 font-medium text-[18px]">
-                            {item.subject}
-                          </p>
+                  {column.items.map((item, index) => {
+                    const id = item.id?.toString() || `fallback-${index}`;
 
-                          {/* Description */}
-                          <p className="text-[#4A5565] flex- text-[14px]">
-                            {item.details}
-                          </p>
-
-                          {/* Footer */}
-                          <div className="flex justify-between items-center mt-3">
-                            <p className="text-[12px] text-[#4A5565]">
-                              {item.points} points
+                    return (
+                      <Draggable key={id} draggableId={id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={provided.draggableProps.style}
+                            className={`bg-white rounded-[10px] border-[2px] border-[#DADCE0] p-3 mb-3 cursor-grab ${
+                              snapshot.isDragging ? "shadow-lg" : ""
+                            }`}
+                          >
+                            {/* Title */}
+                            <p className="text-[#101828] pb-3 font-medium text-[18px]">
+                              {item.subject}
                             </p>
 
-                            <div className="w-[30px] h-[30px] rounded-full bg-[#585858] flex items-center justify-center text-white text-[12px]">
-                              {item.aka}
+                            {/* Description */}
+                            <p className="text-[#4A5565] text-[14px]">
+                              {item.details}
+                            </p>
+
+                            {/* Footer */}
+                            <div className="flex justify-between items-center mt-3">
+                              <p className="text-[12px] text-[#4A5565]">
+                                {item.points} points
+                              </p>
+
+                              <div className="w-[30px] h-[30px] rounded-full bg-[#585858] flex items-center justify-center text-white text-[12px]">
+                                {item.aka}
+                              </div>
                             </div>
                           </div>
-                          {/* <div className="w-full mt-4 ">
-                            <button className="border rounded-[10px] flex justify-center items-center w-full py-1"> add story</button>
-                          </div> */}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                        )}
+                      </Draggable>
+                    );
+                  })}
 
                   {provided.placeholder}
                 </div>
