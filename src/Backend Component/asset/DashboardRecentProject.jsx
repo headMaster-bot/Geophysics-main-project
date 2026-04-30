@@ -5,7 +5,7 @@ import DashboardRecentData from './DashboardRecentData'
 export default function DashboardRecentProject() {
   const viewall = useNavigate()
   const handleViewAll = () => {
-    viewall('/dashboard/my-projects')
+    viewall('/dashboard/my-project')
   }
   return (
     <div className='md:mx-0 mx-auto w-11/12 md:w-[967px] py-8'>

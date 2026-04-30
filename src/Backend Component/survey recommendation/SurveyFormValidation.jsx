@@ -10,18 +10,18 @@ import {
   saveDraftAction,
 } from "../../redux/slice/survey/surveySlice";
 
-// import { getUserProfileAction } from "../../redux/slice/user/usersSlice";
-// import {
-//   resetSuccessAction,
-//   resetErrAction,
-// } from "../../redux/slice/globalActions/globalActions";
+import { getUserProfileAction } from "../../redux/slice/user/usersSlice";
+import {
+  resetSuccessAction,
+  resetErrAction,
+} from "../../redux/slice/globalActions/globalActions";
 
 import first from "../image/🌿.png";
 import second from "../image/⛏️.png";
 import third from "../image/🏗️.png";
 import fourth from "../image/🏛️.png";
-
-// import SurveyContent from "./SurveyContent";
+// <<<<<<< HEAD
+import SurveyContent from "./SurveyContent";
 import { useParams } from "react-router-dom";
 // const { survey } = useSelector((state) => state.surveys);
 // =======
@@ -43,7 +43,7 @@ const SurveyFormValidation = ({ onNext }) => {
     }
   }, [id, dispatch]);
 
-  const { error: reduxError, survey } = useSelector(
+  const { error: reduxError, success, successMessage, survey } = useSelector(
     (state) => state.surveys
   );
 
@@ -53,7 +53,7 @@ const SurveyFormValidation = ({ onNext }) => {
   // const [content] = useState([
   // =======
   const [contents] = useState([
-    
+    // >>>>>>> 312e976465945fab6535197eff0613843bc951a6
     { id: 1, photo: first, topic: "Environmental Assessment" },
     { id: 2, photo: second, topic: "Groundwater Exploration" },
     { id: 3, photo: third, topic: "Engineering Investigation" },
@@ -78,6 +78,21 @@ const SurveyFormValidation = ({ onNext }) => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+
+  // useEffect(() => {
+  //   if (survey) {
+  //     setSurveyForm({
+  //       surveyName: survey.surveyName || "",
+  //       description: survey.description || "",
+  //       surveyObjective: survey.surveyObjective || "",
+  //       others: survey.others || "",
+  //       clientName: survey.clientName || "",
+  //       clientEmail: survey.clientEmail || "",
+  //       targetCompletionDate: survey.targetCompletionDate || "",
+  //     });
+  //   }
+  // }, [survey]);
+
 
   // ✅ HANDLE INPUT CHANGE
 

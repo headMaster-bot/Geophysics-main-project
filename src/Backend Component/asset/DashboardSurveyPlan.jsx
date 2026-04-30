@@ -17,7 +17,7 @@ const DashboardSurveyPlan = () => {
       photo: Dash_Survey,
       icon: plus,
       content: "start survey",
-      linking: "/dashboard/survey/1", // ✅ route path
+      linking: "/dashboard/survey", // ✅ route path
     },
     {
       id: 2,
