@@ -291,7 +291,7 @@ export const fetchDraftAndCompleteAction = createAsyncThunk(
     async (statuses, { rejectWithValue, getState }) => {
         try {
             // const token = getState()?.users?.userAuth?.userInfo?.token;
-             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
+            const token = getState()?.users?.userAuth?.userInfo?.message?.token;
 
             const config = {
                 headers: {
@@ -319,6 +319,11 @@ export const fetchDraftAndCompleteAction = createAsyncThunk(
 const projectSlice = createSlice({
     name: "projects",
     initialState,
+    reducers: {
+        clearProject: (state) => {
+            state.project = null;
+        },
+    },
     extraReducers: (builder) => {
         // Create Project
         builder.addCase(createProjectAction.pending, (state) => {
@@ -528,10 +533,10 @@ const projectSlice = createSlice({
         // Drafs and complete
 
         builder
-        .addCase(fetchDraftAndCompleteAction.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        })
+            .addCase(fetchDraftAndCompleteAction.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
 
         builder.addCase(fetchDraftAndCompleteAction.fulfilled, (state, action) => {
             state.loading = false;
@@ -557,6 +562,8 @@ const projectSlice = createSlice({
 });
 
 // Generate reducers
+export const { clearProject } = projectSlice.actions;
+
 const projectReducers = projectSlice.reducer;
 
 export default projectReducers;

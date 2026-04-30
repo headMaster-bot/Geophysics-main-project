@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import baseUrl from "../utils/baseUrl";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import Swal from "sweetalert2";
 import ProjectPlanner from "./ProjectPlanner";
-import { createProjectAction, saveDraftAction } from "../redux/slice/project/projectSlice";
+import { createProjectAction, saveDraftAction, clearProject } from "../redux/slice/project/projectSlice";
 
 const ProjectPlannerValidation = ({ onNext }) => {
     const navigate = useNavigate();
+    const { id } = useParams()
     // const navigate = useNavigate();
     // const handleSaveToDraft = () => {
     //     Swal.fire({
@@ -55,16 +56,39 @@ const ProjectPlannerValidation = ({ onNext }) => {
     const [projectId, setProjectId] = useState(null);
 
 
+    // useEffect((project && id) => {
+    //     if (project) {
+    //         setProjectDetails({
+    //             projectName: project.projectName || "",
+    //             description: project.description || "",
+    //             startDate: project.startDate?.split("T")[0] || "",
+    //             endDate: project.endDate?.split("T")[0] || "",
+    //         });
+    //     }
+    // }, [project]);
+
+    // useEffect(() => {
+    //     if (project && id && !projectId) { // 👈 only when editing
+    //         setProjectDetails({
+    //             projectName: project.projectName || "",
+    //             description: project.description || "",
+    //             startDate: project.startDate?.split("T")[0] || "",
+    //             endDate: project.endDate?.split("T")[0] || "",
+    //         });
+    //     }
+    // }, [project, id]);
     useEffect(() => {
-        if (project) {
+        if (id && project && !projectId) {
             setProjectDetails({
                 projectName: project.projectName || "",
                 description: project.description || "",
                 startDate: project.startDate?.split("T")[0] || "",
                 endDate: project.endDate?.split("T")[0] || "",
             });
+
+            setProjectId(project._id);
         }
-    }, [project]);
+    }, [id, project, projectId]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -79,7 +103,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
         fetchUsers();
     }, []);
 
-  
+
     const handleSaveToDraft = async () => {
         console.log("Project Validation");
 
@@ -127,7 +151,13 @@ const ProjectPlannerValidation = ({ onNext }) => {
                 timer: 1200,
                 showConfirmButton: false,
             }).then(() => {
-               navigate("/dashboard/my-project");
+                setProjectDetails({
+                    projectName: "",
+                    description: "",
+                    startDate: "",
+                    endDate: "",
+                })
+                navigate("/dashboard/my-project");
             });
 
         } catch (err) {
@@ -251,6 +281,13 @@ const ProjectPlannerValidation = ({ onNext }) => {
                             text: "Your project has been created successfully.",
                             icon: "success"
                         }).then(() => {
+                            setProjectDetails({
+                                projectName: "",
+                                description: "",
+                                startDate: "",
+                                endDate: "",
+                            })
+                            dispatch(clearProject());
                             // if (onNext) onNext(3);
                             navigate(`/dashboard/project/${newProjectId}/3`);
                         });
