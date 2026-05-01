@@ -119,3 +119,128 @@ const epicSlice = createSlice({
 const epicReducers = epicSlice.reducer;
 
 export default epicReducers;
+
+
+// import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+// import axios from "axios";
+// import baseUrl from "../../../utils/baseUrl";
+
+// /* =========================
+//    INITIAL STATE
+// ========================= */
+// const initialState = {
+//   loading: false,
+//   error: null,
+//   epics: [],
+//   epic: null,
+//   success: false,
+//   successMessage: null,
+// };
+
+// /* =========================
+//    CREATE EPIC
+// ========================= */
+// export const createEpicAction = createAsyncThunk(
+//   "epic/create",
+//   async ({ title, description, priority, project }, { rejectWithValue, getState }) => {
+//     try {
+//       const token =
+//         getState()?.users?.userAuth?.userInfo?.message?.token;
+
+//       const res = await axios.post(
+//         `${baseUrl}/epics/create-epic`,
+//         { title, description, priority, project },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         }
+//       );
+
+//       return res.data.data; // single epic object
+//     } catch (error) {
+//       return rejectWithValue(
+//         error?.response?.data?.message || error.message
+//       );
+//     }
+//   }
+// );
+
+// /* =========================
+//    FETCH EPICS BY PROJECT
+//    (THIS FIXES REFRESH ISSUE)
+// ========================= */
+// export const fetchEpicsAction = createAsyncThunk(
+//   "epic/fetchByProject",
+//   async (projectId, { rejectWithValue, getState }) => {
+//     try {
+//       const token =
+//         getState()?.users?.userAuth?.userInfo?.message?.token;
+
+//       const res = await axios.get(
+//         `${baseUrl}/epics/project/${projectId}`,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         }
+//       );
+
+//       return res.data.data; // array of epics
+//     } catch (error) {
+//       return rejectWithValue(
+//         error?.response?.data?.message || error.message
+//       );
+//     }
+//   }
+// );
+
+// /* =========================
+//    SLICE
+// ========================= */
+// const epicSlice = createSlice({
+//   name: "epics",
+//   initialState,
+//   reducers: {},
+
+//   extraReducers: (builder) => {
+
+//     /* ========= CREATE ========= */
+//     builder.addCase(createEpicAction.pending, (state) => {
+//       state.loading = true;
+//       state.error = null;
+//     });
+
+//     builder.addCase(createEpicAction.fulfilled, (state, action) => {
+//       state.loading = false;
+//       state.success = true;
+
+//       // instant UI update
+//       state.epics.push(action.payload);
+//     });
+
+//     builder.addCase(createEpicAction.rejected, (state, action) => {
+//       state.loading = false;
+//       state.error = action.payload;
+//     });
+
+//     /* ========= FETCH ========= */
+//     builder.addCase(fetchEpicsAction.pending, (state) => {
+//       state.loading = true;
+//     });
+
+//     builder.addCase(fetchEpicsAction.fulfilled, (state, action) => {
+//       state.loading = false;
+
+//       // 🔥 CRITICAL FOR REFRESH PERSISTENCE
+//       state.epics = action.payload || [];
+//     });
+
+//     builder.addCase(fetchEpicsAction.rejected, (state, action) => {
+//       state.loading = false;
+//       state.error = action.payload;
+//     });
+//   },
+// });
+
+// export default epicSlice.reducer;
