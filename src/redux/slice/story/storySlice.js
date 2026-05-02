@@ -10,6 +10,10 @@ const initialState = {
     stories: [],
     storiesByEpic: {},
     storiesByProject: {},
+    projectStats: {
+        totalStories: 0,
+        totalPoints: 0,
+    },
     story: null,
     success: false,
     successMessage: null,
@@ -163,6 +167,34 @@ export const updateStoryStatusAction = createAsyncThunk(
             return data.data;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message);
+        }
+    }
+);
+
+// stats
+export const fetchProjectStatsAction = createAsyncThunk(
+    "stories/fetchProjectStats",
+    async (projectId, { rejectWithValue, getState }) => {
+        try {
+            const token =
+                getState()?.users?.userAuth?.userInfo?.message?.token;
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            const { data } = await axios.get(
+                `${baseUrl}/stories/project-stats/${projectId}`,
+                config
+            );
+
+            return data.data;
+        } catch (error) {
+            return rejectWithValue(
+                error?.response?.data?.message || error.message
+            );
         }
     }
 );
@@ -405,6 +437,22 @@ const storySlice = createSlice({
         //     state.loading = false;
         //     state.error = action.payload;
         // });
+
+        // stats
+        builder.addCase(fetchProjectStatsAction.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+
+        builder.addCase(fetchProjectStatsAction.fulfilled, (state, action) => {
+            state.loading = false;
+            state.projectStats = action.payload;
+        });
+
+        builder.addCase(fetchProjectStatsAction.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
 
 
         // Reset error and success

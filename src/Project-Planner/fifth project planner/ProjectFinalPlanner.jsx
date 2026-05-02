@@ -9,36 +9,37 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from 'sweetalert2'
 import { completeProjectAction } from "../../redux/slice/project/projectSlice";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { fetchProjectStatsAction } from "../../redux/slice/story/storySlice";
 
 
 const ProjectFinalPlanner = () => {
-   const pdfRef = useRef(); // ✅ FIXED REF
+    const pdfRef = useRef(); // ✅ FIXED REF
 
-   /** ✅ EXPORT PDF FUNCTION */
-  const exportToPDF = async () => {
-    const input = pdfRef.current;
+    /** ✅ EXPORT PDF FUNCTION */
+    const exportToPDF = async () => {
+        const input = pdfRef.current;
 
-    const canvas = await html2canvas(input, {
-      scale: 2,
-      useCORS: true,
-    });
+        const canvas = await html2canvas(input, {
+            scale: 2,
+            useCORS: true,
+        });
 
-    const imgData = canvas.toDataURL("image/png");
+        const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("p", "mm", "a4");
+        const pdf = new jsPDF("p", "mm", "a4");
 
-    const imgWidth = 210;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    let position = 0;
+        let position = 0;
 
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
 
-    pdf.save("project.pdf");
-  };
+        pdf.save("project.pdf");
+    };
 
 
     // dispatch and selector
@@ -46,12 +47,19 @@ const ProjectFinalPlanner = () => {
     const { id } = useParams();
     const { profile } = useSelector((state) => state.users);
     const backToDashboard = useNavigate()
-    
+
+    const { projectStats } = useSelector((state) => state.stories);
+    useEffect(() => {
+        if (id) {
+            dispatch(fetchProjectStatsAction(id));
+        }
+    }, [id, dispatch]);
+
     // logic
 
     const handleCompleteProject = async (id) => {
         // console.log("complete button");
-         console.log("project id:", id);
+        console.log("project id:", id);
 
         try {
             const res = await dispatch(completeProjectAction(id)).unwrap();
@@ -156,7 +164,7 @@ const ProjectFinalPlanner = () => {
                                     </div>
                                     <div className="flex items-center gap-4 my-2">
                                         <div>
-                                            <button   onClick={exportToPDF}  className="flex py-[12px] px-8 items-center rounded-[4px] border bg-[#FFFFFF] border-[#EBEBEB] justify-center font-instrument font-normal text-[16px] leading-[24px] tracking-[-0.31px]">
+                                            <button onClick={exportToPDF} className="flex py-[12px] px-8 items-center rounded-[4px] border bg-[#FFFFFF] border-[#EBEBEB] justify-center font-instrument font-normal text-[16px] leading-[24px] tracking-[-0.31px]">
                                                 <img src={basil} alt="" className="pr-4" />
                                                 <p className="text-[#101828]">Export Plan (PDF)</p>
                                             </button>
@@ -179,11 +187,11 @@ const ProjectFinalPlanner = () => {
                             <div className="w-[420px] flex gap-4 mx-sauto items-cxenter ">
                                 <div className="w-[315px] py-6 border-[#D8D8D8] rounded-[10px] px-12 border bg-[#F2F2F2] flex flex-col">
                                     <p className="text-[#4A5565] font-instrument font-normal text-[14x] leading-[28px] tracking-[-0.44px]"> Total Stories</p>
-                                    <p className="text-[#101828] font-instrument font-bold text-[28px] leading-[28px] tracking-[-0.44px]">{profile?.message?.storyCount || 0}</p>
+                                    <p className="text-[#101828] font-instrument font-bold text-[28px] leading-[28px] tracking-[-0.44px]">  {projectStats?.totalStories || 0}</p>
                                 </div>
                                 <div className="w-[315px] py-6 border-[#D8D8D8] border rounded-[10px] px-12 bg-[#F2F2F2] flex flex-col ">
                                     <p className="text-[#4A5565] font-instrument font-normal text-[14x] leading-[28px] tracking-[-0.44px]"> Total Points</p>
-                                    <p className="text-[#101828] font-instrument font-bold text-[28px] leading-[28px] tracking-[-0.44px]">{profile?.message?.totalPoints || 0}</p>
+                                    <p className="text-[#101828] font-instrument font-bold text-[28px] leading-[28px] tracking-[-0.44px]"> {projectStats?.totalPoints || 0}</p>
                                 </div>
                             </div>
                             <div className="my-6 py-6 border-[#D8D8D8] border rounded-[10px] px-12 bg-[#F2F2F2] flex flex-col ">
