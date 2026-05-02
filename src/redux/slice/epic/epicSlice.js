@@ -125,31 +125,23 @@ export default epicReducers;
 // import axios from "axios";
 // import baseUrl from "../../../utils/baseUrl";
 
-// /* =========================
-//    INITIAL STATE
-// ========================= */
 // const initialState = {
 //   loading: false,
 //   error: null,
 //   epics: [],
-//   epic: null,
-//   success: false,
-//   successMessage: null,
 // };
 
-// /* =========================
-//    CREATE EPIC
-// ========================= */
+// /* ================= CREATE EPIC ================= */
 // export const createEpicAction = createAsyncThunk(
 //   "epic/create",
-//   async ({ title, description, priority, project }, { rejectWithValue, getState }) => {
+//   async (data, { rejectWithValue, getState }) => {
 //     try {
 //       const token =
 //         getState()?.users?.userAuth?.userInfo?.message?.token;
 
 //       const res = await axios.post(
 //         `${baseUrl}/epics/create-epic`,
-//         { title, description, priority, project },
+//         data,
 //         {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
@@ -157,21 +149,16 @@ export default epicReducers;
 //         }
 //       );
 
-//       return res.data.data; // single epic object
+//       return res.data.data; // ✅ single epic
 //     } catch (error) {
-//       return rejectWithValue(
-//         error?.response?.data?.message || error.message
-//       );
+//       return rejectWithValue(error.message);
 //     }
 //   }
 // );
 
-// /* =========================
-//    FETCH EPICS BY PROJECT
-//    (THIS FIXES REFRESH ISSUE)
-// ========================= */
+// /* ================= FETCH BY PROJECT ================= */
 // export const fetchEpicsAction = createAsyncThunk(
-//   "epic/fetchByProject",
+//   "epic/fetch",
 //   async (projectId, { rejectWithValue, getState }) => {
 //     try {
 //       const token =
@@ -186,60 +173,29 @@ export default epicReducers;
 //         }
 //       );
 
-//       return res.data.data; // array of epics
+//       return res.data.data; // ✅ array
 //     } catch (error) {
-//       return rejectWithValue(
-//         error?.response?.data?.message || error.message
-//       );
+//       return rejectWithValue(error.message);
 //     }
 //   }
 // );
 
-// /* =========================
-//    SLICE
-// ========================= */
 // const epicSlice = createSlice({
 //   name: "epics",
 //   initialState,
 //   reducers: {},
 
 //   extraReducers: (builder) => {
+//     builder
+//       /* CREATE */
+//       .addCase(createEpicAction.fulfilled, (state, action) => {
+//         state.epics.push(action.payload); // ✅ instant UI update
+//       })
 
-//     /* ========= CREATE ========= */
-//     builder.addCase(createEpicAction.pending, (state) => {
-//       state.loading = true;
-//       state.error = null;
-//     });
-
-//     builder.addCase(createEpicAction.fulfilled, (state, action) => {
-//       state.loading = false;
-//       state.success = true;
-
-//       // instant UI update
-//       state.epics.push(action.payload);
-//     });
-
-//     builder.addCase(createEpicAction.rejected, (state, action) => {
-//       state.loading = false;
-//       state.error = action.payload;
-//     });
-
-//     /* ========= FETCH ========= */
-//     builder.addCase(fetchEpicsAction.pending, (state) => {
-//       state.loading = true;
-//     });
-
-//     builder.addCase(fetchEpicsAction.fulfilled, (state, action) => {
-//       state.loading = false;
-
-//       // 🔥 CRITICAL FOR REFRESH PERSISTENCE
-//       state.epics = action.payload || [];
-//     });
-
-//     builder.addCase(fetchEpicsAction.rejected, (state, action) => {
-//       state.loading = false;
-//       state.error = action.payload;
-//     });
+//       /* FETCH */
+//       .addCase(fetchEpicsAction.fulfilled, (state, action) => {
+//         state.epics = action.payload || []; // ✅ refresh fix
+//       });
 //   },
 // });
 
