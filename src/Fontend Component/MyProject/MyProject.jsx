@@ -13,7 +13,8 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
     // const { projectDrafts, loadingProject } = useSelector((state) => state?.projects);
 
     const { drafts = [], loading } = useSelector((state) => state.surveys);
-    const { projectDrafts = [], loadingProject } = useSelector((state) => state.projects);
+    const { projectDrafts, projects = [], loadingProject } = useSelector((state) => state.projects);
+    
     // complete project
     const { completeProjects = [] } = useSelector((state) => state.projects);
     const { draftAndComplete } = useSelector((state) => state.surveys);
@@ -71,11 +72,11 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
     // }, [dispatch]);
 
     useEffect(() => {
-        dispatch(fetchDraftAndCompleteAction(["draft", "completed"]));
+        dispatch(fetchDraftAndCompleteAction(["draft", "completed", "active"]));
     }, [dispatch]);
 
     useEffect(() => {
-        dispatch(fetchSurveyByStatusAction(["draft", "completed"]));
+        dispatch(fetchSurveyByStatusAction(["draft", "completed", "active"]));
     }, [dispatch]);
     return (
         <div className=" flex-1 flex flex-col w-[967px] gap-[8px] mx-auto pb-4">
@@ -189,7 +190,7 @@ export default function MyProject({ handleOpenDraft, handleStatusUpdate, surveyI
                                         {/* <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">Objective</div>
                                         <div className="font-instrument font-bold text-[14px] leading-[20px] tracking-[-0.15px] text-[#101828]">{item.objective}</div> */}
                                         {item.type === "survey" && (
-                                            <div className="flex justify-between">
+                                            <div className="flex justify-between w-full">
                                                 <div className="font-instrument font-normal text-[14px] leading-[20px] tracking-[-0.15px] text-[#4A5565]">
                                                     Objective
                                                 </div>
