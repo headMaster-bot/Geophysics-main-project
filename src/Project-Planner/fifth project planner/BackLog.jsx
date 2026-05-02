@@ -54,41 +54,18 @@ const BackLog = ({ currentProjectId, openModal }) => {
     return String(epicProjectId) === String(currentProjectId);
   });
 
-  const projectName =
-    currentProjectEpics?.[0]?.project?.projectName || "Unknown Project";
+  // const projectName =
+  //   currentProjectEpics?.[0]?.project?.projectName || "Unknown Project";
 
   return (
     <div>
-      {/* ================= HEADER ================= */}
-      <div className="flex justify-between items-center px-2 mx-8">
-        {/* <p className="text-[#364153] font-instrument font-semibold text-[18px] leading-[28px] tracking-[-0.44px]">
-          Product Backlog
-        </p> */}
-
-        {/* ✅ FIXED BUTTON (MAIN BUG FIX) */}
-        {/* <button
-          onClick={openModal}
-          className="border-[2px] bg-[#585858] py-3 border-[#DADCE0] w-[116px] gap-2 flex items-center rounded-[10px]"
-        >
-          <div className="w-[16px] mx-2">
-            <img src={Plus} alt="plus" />
-          </div>
-
-          <div className="w-[64px]">
-            <p className="text-[#ffffff] font-instrument font-medium text-[14px] leading-[20px] tracking-[-0.15px] text-center capitalize">
-              new epic
-            </p>
-          </div>
-        </button> */}
-      </div>
-
       {/* ================= BACKLOG CONTAINER ================= */}
       <div className="border mx-8 border-[#DADCE0] rounded-[10px]">
         {currentProjectEpics.length === 0 ? (
           <div className="p-4 text-center">
             <p>No epics found for this project</p>
           </div>
-        ) : (
+        ) : ( 
           <div className="mb-4">
             {/* ================= PROJECT HEADER ================= */}
             <div className="px-4 py-2 bg-[#F9FAFB] border-b border-[#DADCE0]">

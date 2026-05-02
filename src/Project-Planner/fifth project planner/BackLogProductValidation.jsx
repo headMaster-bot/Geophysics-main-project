@@ -192,6 +192,8 @@
 
 // export default BackLogProductValidation;
 
+
+
 // import { useState, useEffect } from "react";
 // import Swal from "sweetalert2";
 // import { useDispatch, useSelector } from "react-redux";
@@ -331,6 +333,8 @@
 // export default BackLogProductValidation;
 
 
+
+
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -340,18 +344,18 @@ import {
 } from "../../redux/slice/epic/epicSlice";
 
 import { getUserProjectsAction } from "../../redux/slice/project/projectSlice";
+import Plus from "../../Backend Component/image/Plus.png";
 
 import BackLog from "./BackLog";
 import BackLogProduct from "./BackLogProduct";
 import BackLogModal from "./BackLogModal";
-import Plus from "../../Backend Component/image/Plus.png";
-
 
 const BackLogProductValidation = () => {
   const dispatch = useDispatch();
 
-  const { epics = [] } = useSelector((state) => state.epics);
-  const { projects = [] } = useSelector((state) => state.projects);
+  // ✅ ALWAYS SAFE ARRAY
+  const epics = useSelector((state) => state.epics.epics || []);
+  const projects = useSelector((state) => state.projects.projects || []);
 
   const [currentProjectId, setCurrentProjectId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -373,23 +377,35 @@ const BackLogProductValidation = () => {
   /* ================= SET CURRENT PROJECT ================= */
   useEffect(() => {
     if (projects.length > 0) {
-      const latestProject = projects[projects.length - 1];
+      const latest = projects[projects.length - 1];
 
-      setCurrentProjectId(latestProject._id);
+      setCurrentProjectId(latest._id);
 
       setEpicForm((prev) => ({
         ...prev,
-        project: latestProject._id,
+        project: latest._id,
       }));
     }
   }, [projects]);
 
-  /* ================= FETCH EPICS (REFRESH FIX) ================= */
+  /* ================= FETCH EPICS ================= */
   useEffect(() => {
     if (currentProjectId) {
       dispatch(fetchEpicsAction(currentProjectId));
     }
   }, [currentProjectId, dispatch]);
+
+  /* ================= FILTER BY PROJECT (🔥 KEY FIX) ================= */
+  const currentProjectEpics = epics.filter((epic) => {
+    if (!epic?.project) return false;
+
+    const epicProjectId =
+      typeof epic.project === "object"
+        ? epic.project._id
+        : epic.project;
+
+    return String(epicProjectId) === String(currentProjectId);
+  });
 
   /* ================= INPUT ================= */
   const handleEpicChange = (e) => {
@@ -419,7 +435,6 @@ const BackLogProductValidation = () => {
 
     setIsModalOpen(false);
 
-    // reset form
     setEpicForm({
       title: "",
       description: "",
@@ -431,22 +446,22 @@ const BackLogProductValidation = () => {
   return (
     <>
       {/* HEADER */}
-      <div className="flex justify-between pb-14 items-center mx-8">
-         <p className="font-semibold text-[18px]">Product Backlog</p>
+     <div className="flex justify-between pb-14 items-center mx-8">
+        <p className="font-semibold text-[18px]">Product Backlog</p>
 
-         <button
-          type="button"
-           onClick={() => setIsModalOpen(true)}
-           className="flex items-center bg-[#585858] text-white px-4 py-3 rounded-[10px]"
-         >
-           <img src={Plus} alt="" className="w-[16px]" />
-           <span className="ml-2">New Epic</span>
-         </button>
-       </div>
+        <button
+        type = 'button'
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center bg-[#585858] text-white px-4 py-2 rounded-[10px]"
+        >
+          <img src={Plus} alt="" className="w-[16px]" />
+          <span className="ml-2">New Epic</span>
+        </button>
+      </div>
 
 
-      {/* 🔥 MAIN LOGIC */}
-      {epics.length > 0 ? (
+      {/* 🔥 CORRECT CONDITION */}
+      {currentProjectEpics.length > 0 ? (
         <BackLog currentProjectId={currentProjectId} />
       ) : (
         <BackLogProduct openModal={() => setIsModalOpen(true)} />
@@ -467,3 +482,144 @@ const BackLogProductValidation = () => {
 };
 
 export default BackLogProductValidation;
+
+
+
+
+
+//  import { useEffect, useState } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+
+// import {
+//   createEpicAction,
+//   fetchEpicsAction,
+// } from "../../redux/slice/epic/epicSlice";
+
+// import { getUserProjectsAction } from "../../redux/slice/project/projectSlice";
+
+// import BackLog from "./BackLog";
+// import BackLogProduct from "./BackLogProduct";
+// import BackLogModal from "./BackLogModal";
+// import Plus from "../../Backend Component/image/Plus.png";
+
+
+// const BackLogProductValidation = () => {
+//   const dispatch = useDispatch();
+
+//   const { epics = [] } = useSelector((state) => state.epics);
+//   const { projects = [] } = useSelector((state) => state.projects);
+
+//   const [currentProjectId, setCurrentProjectId] = useState(null);
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+
+//   const [epicForm, setEpicForm] = useState({
+//     title: "",
+//     description: "",
+//     priority: "",
+//     project: "",
+//   });
+
+//   const [errors, setErrors] = useState({});
+
+//   /* ================= LOAD PROJECTS ================= */
+//   useEffect(() => {
+//     dispatch(getUserProjectsAction());
+//   }, [dispatch]);
+
+//   /* ================= SET CURRENT PROJECT ================= */
+//   useEffect(() => {
+//     if (projects.length > 0) {
+//       const latestProject = projects[projects.length - 1];
+
+//       setCurrentProjectId(latestProject._id);
+
+//       setEpicForm((prev) => ({
+//         ...prev,
+//         project: latestProject._id,
+//       }));
+//     }
+//   }, [projects]);
+
+//   /* ================= FETCH EPICS (REFRESH FIX) ================= */
+//   useEffect(() => {
+//     if (currentProjectId) {
+//       dispatch(fetchEpicsAction(currentProjectId));
+//     }
+//   }, [currentProjectId, dispatch]);
+
+//   /* ================= INPUT ================= */
+//   const handleEpicChange = (e) => {
+//     const { name, value } = e.target;
+
+//     setEpicForm((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//   };
+
+//   /* ================= SUBMIT ================= */
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     const newErrors = {};
+//     if (!epicForm.title) newErrors.title = "Title required";
+//     if (!epicForm.description) newErrors.description = "Description required";
+//     if (!epicForm.priority) newErrors.priority = "Priority required";
+
+//     if (Object.keys(newErrors).length > 0) {
+//       setErrors(newErrors);
+//       return;
+//     }
+
+//     await dispatch(createEpicAction(epicForm));
+
+//     setIsModalOpen(false);
+
+//     // reset form
+//     setEpicForm({
+//       title: "",
+//       description: "",
+//       priority: "",
+//       project: currentProjectId,
+//     });
+//   };
+
+//   return (
+//     <>
+//       {/* HEADER */}
+//       <div className="flex justify-between pb-14 items-center mx-8">
+//          <p className="font-semibold text-[18px]">Product Backlog</p>
+
+//          <button
+//           type="button"
+//            onClick={() => setIsModalOpen(true)}
+//            className="flex items-center bg-[#585858] text-white px-4 py-3 rounded-[10px]"
+//          >
+//            <img src={Plus} alt="" className="w-[16px]" />
+//            <span className="ml-2">New Epic</span>
+//          </button>
+//        </div>
+
+
+//       {/* 🔥 MAIN LOGIC */}
+//       {epics.length > 0 ? (
+//         <BackLog currentProjectId={currentProjectId} />
+//       ) : (
+//         <BackLogProduct openModal={() => setIsModalOpen(true)} />
+//       )}
+
+//       {/* MODAL */}
+//       {isModalOpen && (
+//         <BackLogModal
+//           closeModal={() => setIsModalOpen(false)}
+//           epicForm={epicForm}
+//           handleEpicChange={handleEpicChange}
+//           handleSubmit={handleSubmit}
+//           errors={errors}
+//         />
+//       )}
+//     </>
+//   );
+// };
+
+// export default BackLogProductValidation;
