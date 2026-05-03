@@ -15,12 +15,16 @@ const UseStoryTable = ({ epicId }) => {
     }
   }, [dispatch, epicId]);
 
-  const stories = storiesByEpic?.[epicId] || [];
+  // const stories = storiesByEpic?.[epicId] || [];
+  const stories = storiesByEpic?.[String(epicId)] || [];
+
+  console.log(storiesByEpic);
+  console.log("CURRENT EPIC:", String(epicId));
 
   return (
     <div className="px-6">
       <table className="w-full border border-[#DADCE0] rounded-[10px] font-instrument mb-5">
-        
+
         <thead>
           <tr className="border-b border-[#DADCE0]">
             <th className="border-r">S/N</th>
