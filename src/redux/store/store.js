@@ -25,7 +25,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["epics", "projects"], 
+  whitelist: ["epics"], 
   // 👆 persist important slices (you can add more if needed)
 };
 

@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 
 import ProjectPlanner from "./ProjectPlanner";
 import {
+  clearProject,
   createProjectAction,
   saveDraftAction,
 } from "../redux/slice/project/projectSlice";
@@ -217,7 +218,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
             ) {
               const created = res.payload?.data || res.payload;
               const newProjectId = created?._id;
-
+              dispatch(clearProject());
               // ✅ RESET FORM
               setProjectDetails({
                 projectName: "",
