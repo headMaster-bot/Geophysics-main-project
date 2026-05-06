@@ -68,11 +68,11 @@ const BackLog = ({ currentProjectId, openModal }) => {
         ) : ( 
           <div className="mb-4">
             {/* ================= PROJECT HEADER ================= */}
-            {/* <div className="px-4 py-2 bg-[#F9FAFB] border-b border-[#DADCE0]">
+            <div className="px-4 py-2 bg-[#F9FAFB] border-b border-[#DADCE0]">
               <p className="text-[#364153] font-instrument font-semibold text-[16px] leading-[24px] tracking-[-0.31px]">
                 {lastProjectName} (Current)
               </p>
-            </div> */}
+            </div>
 
             {/* ================= EPIC LIST ================= */}
             {currentProjectEpics.map((epic) => (
