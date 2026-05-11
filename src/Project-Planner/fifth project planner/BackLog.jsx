@@ -5,7 +5,7 @@ import { fetchStoriesByEpicIdAction } from "../../redux/slice/story/storySlice";
 
 import Right from "../../Backend Component/image/Vector.png";
 import down from "../../Backend Component/image/ChevronDown.png";
-import Plus from "../../Backend Component/image/Plus.jpg";
+
 import BackLogContent from "./BackLogContent";
 
 const BackLog = ({ currentProjectId, openModal }) => {
