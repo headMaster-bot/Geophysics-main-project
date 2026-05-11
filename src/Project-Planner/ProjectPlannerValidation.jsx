@@ -11,6 +11,7 @@ import {
   createProjectAction,
   saveDraftAction,
 } from "../redux/slice/project/projectSlice";
+import { getUserProfileAction } from "../redux/slice/user/usersSlice";
 
 const ProjectPlannerValidation = ({ onNext }) => {
   const navigate = useNavigate();
@@ -40,9 +41,8 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
   const [projectId, setProjectId] = useState(null);
 
-  // ✅ Load project if editing
   useEffect(() => {
-    if (project && !projectId) {
+    if (project && project._id && !id) {
       setProjectDetails({
         projectName: project.projectName || "",
         description: project.description || "",
@@ -53,7 +53,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
 
       setProjectId(project._id);
     }
-  }, [project, projectId]);
+  }, [project, id]);
 
   // ✅ Fetch users
   useEffect(() => {
@@ -219,6 +219,7 @@ const ProjectPlannerValidation = ({ onNext }) => {
               const created = res.payload?.data || res.payload;
               const newProjectId = created?._id;
               dispatch(clearProject());
+              dispatch(getUserProfileAction());
               // ✅ RESET FORM
               setProjectDetails({
                 projectName: "",

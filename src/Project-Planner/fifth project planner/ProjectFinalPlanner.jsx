@@ -46,6 +46,8 @@ const ProjectFinalPlanner = () => {
     const dispatch = useDispatch();
     const { id } = useParams();
     const { profile } = useSelector((state) => state.users);
+    console.log(profile);
+    
     const backToDashboard = useNavigate()
 
     const { projectStats } = useSelector((state) => state.stories);

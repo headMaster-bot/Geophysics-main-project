@@ -19,10 +19,20 @@ const BackLog = ({ currentProjectId, openModal }) => {
   // PROJECTS
   const projects = profile?.message?.projects || [];
 
+  console.log(projects.map(project => project.projectName));
+
+  // const lastProjectName =
+  //   projects.length > 0
+  //     ? projects[projects.length - 1]?.projectName
+  //     : "Unknown Project";
+
   const lastProjectName =
-    projects.length > 0
-      ? projects[projects.length - 1]?.projectName
-      : "Unknown Project";
+  projects.length > 0
+    ? projects[0]?.projectName
+    : "Unknown Project";
+
+console.log(lastProjectName);
+console.log(lastProjectName, "last project");
 
   // TOGGLE STATE
   const [toggledEpics, setToggledEpics] = useState({});
