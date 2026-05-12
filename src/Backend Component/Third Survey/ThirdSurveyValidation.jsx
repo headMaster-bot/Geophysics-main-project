@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import ThirdSurveyContent from './ThirdSurveyContent';
 import Swal from "sweetalert2";
+
+import ThirdSurveyContent from './ThirdSurveyContent';
+
+// Redux actions
 import { getUserProfileAction } from '../../redux/slice/user/usersSlice';
 import { updateSurveyAction } from '../../redux/slice/survey/surveySlice';
 import { resetSuccessAction, resetErrAction } from '../../redux/slice/globalActions/globalActions';
@@ -9,24 +12,17 @@ import { resetSuccessAction, resetErrAction } from '../../redux/slice/globalActi
 export default function ThirdSurveyValidation({ secondSurveyData, onNext }) {
     const dispatch = useDispatch();
 
-    const { profile } = useSelector((state) => state.users);
-    const { loading, error: reduxError, success, successMessage, recommendedMethods } =
+    const { surveys, survey, success, successMessage, error: reduxError } =
         useSelector((state) => state.surveys);
 
-    // ✅ Fetch profile
     useEffect(() => {
-        dispatch(getUserProfileAction());
+        dispatch(getUserProfileAction()); // optional only if needed elsewhere
     }, [dispatch]);
 
-    // ✅ Get latest survey
-    const surveys = profile?.message?.survey;
-    
+    // ✅ ALWAYS use redux surveys
     const currentSurvey =
-        Array.isArray(surveys) && surveys.length > 0
-            ? surveys[surveys.length - 1]
-            : null;
+        surveys?.length ? surveys[surveys.length - 1] : null;
 
-    // ✅ FINAL FIX: Reliable fallback (Step2 → DB → default)
     const lengthValue =
         secondSurveyData?.latitude ??
         currentSurvey?.latitude ??
@@ -37,48 +33,27 @@ export default function ThirdSurveyValidation({ secondSurveyData, onNext }) {
         currentSurvey?.longitude ??
         "";
 
-    // ✅ Debug (keep for now)
-    useEffect(() => {
-        console.log("=== STEP 3 DEBUG ===");
-        console.log("SecondSurveyData:", secondSurveyData);
-        console.log("CurrentSurvey:", currentSurvey);
-        console.log("Length:", lengthValue);
-        console.log("Breadth:", breadthValue);
-    }, [secondSurveyData, currentSurvey, lengthValue, breadthValue]);
-
-    // ✅ Form state
     const [userInput, setUserInput] = useState({
-        vegetation: '',
-        geologicalSetting: '',
+        vegetation: "",
+        geologicalSetting: "",
         minDepth: "",
         maxDepth: "",
         checker: []
     });
 
-    const [error, setError] = useState({
-        veg: "",
-        geo: "",
-        dept: "",
-        check: ""
-    });
-
+    const [error, setError] = useState({});
     const [submitted, setSubmitted] = useState(false);
 
-    // ✅ Input handler
     const handleChanges = (e) => {
         const { name, value, type, checked } = e.target;
 
         if (type === "checkbox") {
-            setUserInput((prev) => {
-                const current = prev.checker || [];
-
-                return {
-                    ...prev,
-                    checker: checked
-                        ? [...current, value]
-                        : current.filter((item) => item !== value)
-                };
-            });
+            setUserInput((prev) => ({
+                ...prev,
+                checker: checked
+                    ? [...prev.checker, value]
+                    : prev.checker.filter((i) => i !== value)
+            }));
         } else {
             setUserInput((prev) => ({
                 ...prev,
@@ -87,129 +62,70 @@ export default function ThirdSurveyValidation({ secondSurveyData, onNext }) {
         }
     };
 
-    // ✅ Submit handler
     const handleSubmitSurvey = (e) => {
-        console.log(userInput, "Surveycccc");
-        
         e.preventDefault();
 
-        let newErrors = {
-            veg: "",
-            geo: "",
-            dept: "",
-            check: ""
-        };
+        let newErrors = {};
 
-        if (!userInput.vegetation) {
-            newErrors.veg = 'Vegetation field is required';
-        }
+        if (!userInput.vegetation) newErrors.veg = "Required";
+        if (!userInput.geologicalSetting) newErrors.geo = "Required";
 
-        if (!userInput.geologicalSetting) {
-            newErrors.geo = 'Geological setting field is required';
-        }
+        if (!userInput.minDepth || !userInput.maxDepth)
+            newErrors.dept = "Depth required";
 
-        if (!userInput.minDepth || !userInput.maxDepth) {
-            newErrors.dept = 'Both minimum and maximum depth are required';
-        } else if (parseFloat(userInput.minDepth) >= parseFloat(userInput.maxDepth)) {
-            newErrors.dept = 'Maximum depth must be greater than minimum depth';
-        }
-
-        if (!userInput.checker.length) {
-            newErrors.check = 'Pick at least one checked field';
-        }
+        if (!userInput.checker.length)
+            newErrors.check = "Select constraints";
 
         setError(newErrors);
 
-        if (newErrors.veg || newErrors.geo || newErrors.dept || newErrors.check) {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Fill all required fields (*) before continuing",
-            });
-            return;
-        }
+        if (Object.keys(newErrors).length) return;
 
         const surveyId = currentSurvey?._id;
-        const surveyObjective = currentSurvey?.surveyObjective;
 
-        if (!surveyId) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Survey ID not found.",
-            });
-            return;
-        }
-
-        if (!surveyObjective) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Survey objective missing. Complete step 1.",
-            });
-            return;
-        }
-
-        // ✅ Final payload
         const surveyData = {
-            surveyObjective,
+            surveyObjective: currentSurvey?.surveyObjective,
             latitude: Number(lengthValue),
             longitude: Number(breadthValue),
             vegetationDensity: userInput.vegetation,
             geologicalSetting: userInput.geologicalSetting,
-            minDepth: parseFloat(userInput.minDepth),
-            maxDepth: parseFloat(userInput.maxDepth),
+            minDepth: Number(userInput.minDepth),
+            maxDepth: Number(userInput.maxDepth),
             siteConstraints: userInput.checker,
         };
-
-        console.log("🚀 FINAL PAYLOAD:", { surveyId, surveyData });
 
         dispatch(updateSurveyAction({ id: surveyId, surveyData }));
         setSubmitted(true);
     };
 
-    // ✅ Success handler
     useEffect(() => {
         if (submitted && success) {
-            Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: successMessage || "Saved successfully",
-            }).then(() => {
+            Swal.fire("Success", successMessage || "Saved", "success").then(() => {
                 setSubmitted(false);
                 dispatch(resetSuccessAction());
-                if (onNext) onNext(4);
+                onNext?.(4);
             });
         }
-    }, [submitted, success, successMessage, dispatch, onNext]);
+    }, [submitted, success]);
 
-    // ✅ Error handler
     useEffect(() => {
         if (reduxError) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: reduxError,
-            }).then(() => {
-                dispatch(resetErrAction());
-            });
+            Swal.fire("Error", reduxError, "error");
+            dispatch(resetErrAction());
         }
-    }, [reduxError, dispatch]);
+    }, [reduxError]);
 
-    // ✅ Prevent rendering before data is ready
-    if (!currentSurvey && !secondSurveyData) {
-        return <p className="text-center py-10">Loading survey data...</p>;
+    if (!currentSurvey) {
+        return <p>Loading...</p>;
     }
 
     return (
-        <div>
-            <ThirdSurveyContent
-                HandleSubmit={handleSubmitSurvey}
-                SurveyChange={handleChanges}
-                error={error}
-                length={lengthValue}
-                breadth={breadthValue}
-            />
-        </div>
+        <ThirdSurveyContent
+            HandleSubmit={handleSubmitSurvey}
+            SurveyChange={handleChanges}
+            error={error}
+            userInput={userInput}
+            length={lengthValue}
+            breadth={breadthValue}
+        />
     );
 }

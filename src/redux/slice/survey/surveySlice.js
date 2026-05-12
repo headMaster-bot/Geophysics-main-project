@@ -95,79 +95,6 @@ export const getSurveyAction = createAsyncThunk(
     }
 );
 
-// Update Survey Action
-// export const updateSurveyAction = createAsyncThunk(
-//     "surveys/update",
-//     async (payload, { rejectWithValue, getState }) => {
-//         try {
-//             const { id, surveyData } = payload;
-//             const {
-//                 surveyName,
-//                 description,
-//                 surveyObjective,
-//                 latitude,
-//                 longitude,
-//                 vegetationDensity,
-//                 geologicalSetting,
-//                 minDepth,
-//                 maxDepth,
-//                 siteConstraints,
-//                 ambientNoise,
-//                 layoutPattern,
-//                 stationSpacing,
-//                 lineSpacing,
-//             } = surveyData;
-
-//             const token = getState()?.users?.userAuth?.userInfo?.message?.token;
-//             const config = {
-//                 headers: {
-//                     "Content-Type": "application/json",
-//                     Authorization: `Bearer ${token}`,
-//                 },
-//             };
-
-//             console.log('📤 Redux updateSurveyAction: Sending to backend:', {
-//                 url: `${baseUrl}/surveys/update/${id}`,
-//                 surveyObjective,
-//                 geologicalSetting,
-//                 minDepth,
-//                 maxDepth
-//             });
-
-//             const res = await axios.put(`${baseUrl}/surveys/update/${id}`, {
-//                 surveyObjective,
-//                 latitude,
-//                 longitude,
-//                 vegetationDensity,
-//                 geologicalSetting,
-//                 minDepth,
-//                 maxDepth,
-//                 siteConstraints,
-//                 ambientNoise,
-//                 layoutPattern,
-//                 stationSpacing,
-//                 lineSpacing,
-//             }, config);
-
-//             console.log('📥 Redux updateSurveyAction: Response received:', res.data);
-//             console.log('  Survey saved:', res.data.survey?._id);
-//             console.log('  Recommended methods:', res.data.recommendedMethods);
-
-//             return {
-//                 survey: res.data.survey,
-//                 recommendedMethods: res.data.recommendedMethods
-//             };
-//         } catch (error) {
-//             console.error('❌ Redux updateSurveyAction Error:', {
-//                 status: error.response?.status,
-//                 message: error.response?.data?.message || error.message,
-//                 fullError: error.response?.data
-//             });
-//             return rejectWithValue(error?.response?.data?.message || error.message);
-//         }
-//     }
-// );
-
 export const updateSurveyAction = createAsyncThunk(
     "surveys/update",
     async (payload, { rejectWithValue, getState }) => {
@@ -214,7 +141,9 @@ export const updateSurveyAction = createAsyncThunk(
 
             return {
                 survey: res.data.survey,
-                recommendedMethods: res.data.recommendedMethods || [],
+                // recommendedMethods: res.data.recommendedMethods || [],
+                recommendedMethods:
+                    res.data.survey?.recommendedMethods || [],
                 message: res.data.message,
             };
         } catch (error) {
@@ -447,21 +376,24 @@ const surveySlice = createSlice({
             state.error = null;
         });
         builder.addCase(createSurveyAction.fulfilled, (state, action) => {
-            console.log('=== REDUX: createSurveyAction.fulfilled ===');
-            console.log('Full action.payload:', action.payload);
+            // console.log('=== REDUX: createSurveyAction.fulfilled ===');
+            // console.log('Full action.payload:', action.payload);
 
             state.loading = false;
             state.success = true;
             state.successMessage = action.payload.message;
 
             // ✅ CLEAR OLD RECOMMENDATIONS WHEN NEW SURVEY IS CREATED
-            state.recommendedMethods = [];
-            console.log('🧹 Cleared old recommendedMethods for new survey');
+            // state.recommendedMethods = [];
+            // console.log('🧹 Cleared old recommendedMethods for new survey');
 
             // Backend returns surveyCreated, not survey
             const surveyData = action.payload.surveyCreated || action.payload.survey;
             console.log('Survey data found:', surveyData);
-
+            console.log(
+                "NEW recommendedMethods slice: ",
+                action.payload.recommendedMethods
+            );
             if (surveyData) {
                 state.survey = surveyData;
                 state.surveys.push(surveyData);
@@ -511,36 +443,58 @@ const surveySlice = createSlice({
             state.loading = true;
             state.error = null;
         });
+        // builder.addCase(updateSurveyAction.fulfilled, (state, action) => {
+        //     console.log('=== REDUX: updateSurveyAction.fulfilled ===');
+        //     console.log('Full action.payload:', action.payload);
+        //     console.log('recommendedMethods from payload:', action.payload.recommendedMethods);
+        //     console.log('Type:', typeof action.payload.recommendedMethods);
+        //     console.log('Is array?', Array.isArray(action.payload.recommendedMethods));
+
+        //     state.loading = false;
+        //     state.success = true;
+        //     state.successMessage = action.payload.message || "Survey updated successfully";
+
+        //     // ✅ ENSURE recommendedMethods is ALWAYS an array
+        //     state.recommendedMethods = Array.isArray(action.payload.recommendedMethods)
+        //         ? action.payload.recommendedMethods
+        //         : [];
+
+        //     console.log('State after update - recommendedMethods:', state.recommendedMethods);
+        //     console.log('✅ Recommendations cleared/updated for survey objective');
+
+        //     if (action.payload.survey) {
+        //         state.survey = action.payload.survey;
+        //         // Update in surveys array - only find if survey has _id
+        //         if (action.payload.survey._id) {
+        //             const index = state.surveys.findIndex(s => s && s._id === action.payload.survey._id);
+        //             if (index !== -1) {
+        //                 state.surveys[index] = action.payload.survey;
+        //             }
+        //         }
+        //     }
+        // });
         builder.addCase(updateSurveyAction.fulfilled, (state, action) => {
-            console.log('=== REDUX: updateSurveyAction.fulfilled ===');
-            console.log('Full action.payload:', action.payload);
-            console.log('recommendedMethods from payload:', action.payload.recommendedMethods);
-            console.log('Type:', typeof action.payload.recommendedMethods);
-            console.log('Is array?', Array.isArray(action.payload.recommendedMethods));
+            const updatedSurvey = action.payload?.survey;
 
             state.loading = false;
             state.success = true;
-            state.successMessage = action.payload.message || "Survey updated successfully";
+            state.successMessage =
+                action.payload?.message || "Survey updated successfully";
 
-            // ✅ ENSURE recommendedMethods is ALWAYS an array
-            state.recommendedMethods = Array.isArray(action.payload.recommendedMethods)
-                ? action.payload.recommendedMethods
-                : [];
+            // ✅ FORCE CLEAN REPLACEMENT (NO MIXING)
+            state.recommendedMethods = [
+                ...(action.payload?.recommendedMethods || [])
+            ];
 
-            console.log('State after update - recommendedMethods:', state.recommendedMethods);
-            console.log('✅ Recommendations cleared/updated for survey objective');
+            if (updatedSurvey?._id) {
+                state.survey = updatedSurvey;
 
-            if (action.payload.survey) {
-                state.survey = action.payload.survey;
-                // Update in surveys array - only find if survey has _id
-                if (action.payload.survey._id) {
-                    const index = state.surveys.findIndex(s => s && s._id === action.payload.survey._id);
-                    if (index !== -1) {
-                        state.surveys[index] = action.payload.survey;
-                    }
-                }
+                state.surveys = (state.surveys || []).map((s) =>
+                    s?._id === updatedSurvey._id ? updatedSurvey : s
+                );
             }
         });
+
         builder.addCase(updateSurveyAction.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
